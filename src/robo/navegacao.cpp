@@ -852,6 +852,14 @@ void Navegacao::ciclo(const InfoCiclo& info) {
 
     switch (c.estado) {
         case EstadoRobo::DISPONIVEL: {
+            // missão que sobrou de um defeito reconhecido antes de a carga soltar: termina aqui
+            if (c.missao.ativa) {
+                s.sp_x = pos.x;
+                s.sp_y = pos.y;
+                s.acoplar = false;
+                if (!e.atracada) encerrar_missao(c.estado, c.estado);
+                break;
+            }
             if (c.recarga_pendente && !segurar) {
                 iniciar_recarga(pos, c.estado);
                 break;
