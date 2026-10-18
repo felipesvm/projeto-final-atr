@@ -1,0 +1,840 @@
+{
+  "descricao": "Cenário de teste: 120 caixas de tamanhos 2 a 4 (só trabalho em equipe), robôs a 2 m/s.",
+  "galpao": {
+    "largura": 30,
+    "altura": 20
+  },
+  "obstaculos": [
+    {
+      "x": 14,
+      "y": 0,
+      "w": 2,
+      "h": 16
+    }
+  ],
+  "passagens": [
+    {
+      "nome": "P1",
+      "x": 14,
+      "y": 3,
+      "w": 2,
+      "h": 1,
+      "capacidade": 1
+    },
+    {
+      "nome": "P2",
+      "x": 14,
+      "y": 8,
+      "w": 2,
+      "h": 1,
+      "capacidade": 2
+    },
+    {
+      "nome": "P3",
+      "x": 14,
+      "y": 13,
+      "w": 2,
+      "h": 1,
+      "capacidade": 3
+    }
+  ],
+  "baias": [
+    {
+      "id": 1,
+      "x": 4.5,
+      "y": 3.5
+    },
+    {
+      "id": 2,
+      "x": 4.5,
+      "y": 8.5
+    },
+    {
+      "id": 3,
+      "x": 4.5,
+      "y": 13.5
+    }
+  ],
+  "zonas": [
+    {
+      "id": 1,
+      "x": 25.5,
+      "y": 3.5
+    },
+    {
+      "id": 2,
+      "x": 25.5,
+      "y": 8.5
+    },
+    {
+      "id": 3,
+      "x": 25.5,
+      "y": 13.5
+    }
+  ],
+  "estacoes_recarga": [
+    {
+      "x": 0.5,
+      "y": 0.5
+    },
+    {
+      "x": 0.5,
+      "y": 1.5
+    },
+    {
+      "x": 29.5,
+      "y": 0.5
+    },
+    {
+      "x": 29.5,
+      "y": 1.5
+    }
+  ],
+  "estacionamento": {
+    "x": 1,
+    "y": 16,
+    "w": 12,
+    "h": 4
+  },
+  "caixas": [
+    {
+      "id": 1,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 2
+    },
+    {
+      "id": 2,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 3,
+      "tamanho": 2,
+      "baia": 3,
+      "zona": 1
+    },
+    {
+      "id": 4,
+      "tamanho": 4,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 5,
+      "tamanho": 2,
+      "baia": 2,
+      "zona": 1
+    },
+    {
+      "id": 6,
+      "tamanho": 2,
+      "baia": 3,
+      "zona": 2
+    },
+    {
+      "id": 7,
+      "tamanho": 2,
+      "baia": 3,
+      "zona": 1
+    },
+    {
+      "id": 8,
+      "tamanho": 4,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 9,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 10,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 11,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 2
+    },
+    {
+      "id": 12,
+      "tamanho": 3,
+      "baia": 3,
+      "zona": 1
+    },
+    {
+      "id": 13,
+      "tamanho": 3,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 14,
+      "tamanho": 2,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 15,
+      "tamanho": 3,
+      "baia": 2,
+      "zona": 1
+    },
+    {
+      "id": 16,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 17,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 2
+    },
+    {
+      "id": 18,
+      "tamanho": 3,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 19,
+      "tamanho": 3,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 20,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 21,
+      "tamanho": 4,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 22,
+      "tamanho": 2,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 23,
+      "tamanho": 3,
+      "baia": 2,
+      "zona": 3
+    },
+    {
+      "id": 24,
+      "tamanho": 4,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 25,
+      "tamanho": 3,
+      "baia": 2,
+      "zona": 1
+    },
+    {
+      "id": 26,
+      "tamanho": 4,
+      "baia": 2,
+      "zona": 1
+    },
+    {
+      "id": 27,
+      "tamanho": 4,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 28,
+      "tamanho": 3,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 29,
+      "tamanho": 3,
+      "baia": 3,
+      "zona": 2
+    },
+    {
+      "id": 30,
+      "tamanho": 3,
+      "baia": 2,
+      "zona": 1
+    },
+    {
+      "id": 31,
+      "tamanho": 4,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 32,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 33,
+      "tamanho": 3,
+      "baia": 2,
+      "zona": 3
+    },
+    {
+      "id": 34,
+      "tamanho": 3,
+      "baia": 3,
+      "zona": 2
+    },
+    {
+      "id": 35,
+      "tamanho": 2,
+      "baia": 2,
+      "zona": 3
+    },
+    {
+      "id": 36,
+      "tamanho": 2,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 37,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 2
+    },
+    {
+      "id": 38,
+      "tamanho": 2,
+      "baia": 2,
+      "zona": 1
+    },
+    {
+      "id": 39,
+      "tamanho": 3,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 40,
+      "tamanho": 4,
+      "baia": 2,
+      "zona": 1
+    },
+    {
+      "id": 41,
+      "tamanho": 2,
+      "baia": 2,
+      "zona": 3
+    },
+    {
+      "id": 42,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 2
+    },
+    {
+      "id": 43,
+      "tamanho": 4,
+      "baia": 2,
+      "zona": 3
+    },
+    {
+      "id": 44,
+      "tamanho": 3,
+      "baia": 2,
+      "zona": 3
+    },
+    {
+      "id": 45,
+      "tamanho": 4,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 46,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 47,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 2
+    },
+    {
+      "id": 48,
+      "tamanho": 4,
+      "baia": 1,
+      "zona": 2
+    },
+    {
+      "id": 49,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 2
+    },
+    {
+      "id": 50,
+      "tamanho": 3,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 51,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 52,
+      "tamanho": 4,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 53,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 2
+    },
+    {
+      "id": 54,
+      "tamanho": 4,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 55,
+      "tamanho": 2,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 56,
+      "tamanho": 2,
+      "baia": 3,
+      "zona": 2
+    },
+    {
+      "id": 57,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 58,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 2
+    },
+    {
+      "id": 59,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 60,
+      "tamanho": 3,
+      "baia": 3,
+      "zona": 1
+    },
+    {
+      "id": 61,
+      "tamanho": 4,
+      "baia": 3,
+      "zona": 1
+    },
+    {
+      "id": 62,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 63,
+      "tamanho": 2,
+      "baia": 3,
+      "zona": 2
+    },
+    {
+      "id": 64,
+      "tamanho": 4,
+      "baia": 3,
+      "zona": 2
+    },
+    {
+      "id": 65,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 2
+    },
+    {
+      "id": 66,
+      "tamanho": 4,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 67,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 68,
+      "tamanho": 2,
+      "baia": 2,
+      "zona": 3
+    },
+    {
+      "id": 69,
+      "tamanho": 2,
+      "baia": 3,
+      "zona": 1
+    },
+    {
+      "id": 70,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 71,
+      "tamanho": 2,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 72,
+      "tamanho": 4,
+      "baia": 3,
+      "zona": 2
+    },
+    {
+      "id": 73,
+      "tamanho": 4,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 74,
+      "tamanho": 4,
+      "baia": 3,
+      "zona": 2
+    },
+    {
+      "id": 75,
+      "tamanho": 4,
+      "baia": 2,
+      "zona": 1
+    },
+    {
+      "id": 76,
+      "tamanho": 3,
+      "baia": 3,
+      "zona": 2
+    },
+    {
+      "id": 77,
+      "tamanho": 3,
+      "baia": 3,
+      "zona": 1
+    },
+    {
+      "id": 78,
+      "tamanho": 4,
+      "baia": 2,
+      "zona": 3
+    },
+    {
+      "id": 79,
+      "tamanho": 4,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 80,
+      "tamanho": 3,
+      "baia": 3,
+      "zona": 1
+    },
+    {
+      "id": 81,
+      "tamanho": 4,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 82,
+      "tamanho": 2,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 83,
+      "tamanho": 4,
+      "baia": 2,
+      "zona": 3
+    },
+    {
+      "id": 84,
+      "tamanho": 4,
+      "baia": 2,
+      "zona": 1
+    },
+    {
+      "id": 85,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 2
+    },
+    {
+      "id": 86,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 2
+    },
+    {
+      "id": 87,
+      "tamanho": 3,
+      "baia": 3,
+      "zona": 1
+    },
+    {
+      "id": 88,
+      "tamanho": 3,
+      "baia": 3,
+      "zona": 2
+    },
+    {
+      "id": 89,
+      "tamanho": 4,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 90,
+      "tamanho": 2,
+      "baia": 2,
+      "zona": 3
+    },
+    {
+      "id": 91,
+      "tamanho": 4,
+      "baia": 2,
+      "zona": 1
+    },
+    {
+      "id": 92,
+      "tamanho": 3,
+      "baia": 3,
+      "zona": 2
+    },
+    {
+      "id": 93,
+      "tamanho": 2,
+      "baia": 3,
+      "zona": 2
+    },
+    {
+      "id": 94,
+      "tamanho": 3,
+      "baia": 3,
+      "zona": 1
+    },
+    {
+      "id": 95,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 96,
+      "tamanho": 2,
+      "baia": 3,
+      "zona": 2
+    },
+    {
+      "id": 97,
+      "tamanho": 4,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 98,
+      "tamanho": 4,
+      "baia": 2,
+      "zona": 3
+    },
+    {
+      "id": 99,
+      "tamanho": 4,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 100,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 101,
+      "tamanho": 4,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 102,
+      "tamanho": 2,
+      "baia": 3,
+      "zona": 1
+    },
+    {
+      "id": 103,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 104,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 2
+    },
+    {
+      "id": 105,
+      "tamanho": 3,
+      "baia": 3,
+      "zona": 2
+    },
+    {
+      "id": 106,
+      "tamanho": 2,
+      "baia": 2,
+      "zona": 1
+    },
+    {
+      "id": 107,
+      "tamanho": 2,
+      "baia": 3,
+      "zona": 2
+    },
+    {
+      "id": 108,
+      "tamanho": 4,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 109,
+      "tamanho": 4,
+      "baia": 3,
+      "zona": 2
+    },
+    {
+      "id": 110,
+      "tamanho": 4,
+      "baia": 3,
+      "zona": 1
+    },
+    {
+      "id": 111,
+      "tamanho": 3,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 112,
+      "tamanho": 2,
+      "baia": 2,
+      "zona": 1
+    },
+    {
+      "id": 113,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 114,
+      "tamanho": 2,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 115,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 2
+    },
+    {
+      "id": 116,
+      "tamanho": 3,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 117,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 118,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 2
+    },
+    {
+      "id": 119,
+      "tamanho": 2,
+      "baia": 1,
+      "zona": 3
+    },
+    {
+      "id": 120,
+      "tamanho": 3,
+      "baia": 1,
+      "zona": 1
+    }
+  ],
+  "parametros": {
+    "velocidade_max": 2.0,
+    "aceleracao": 2.0,
+    "tolerancia_chegada": 0.2,
+    "afastamento_formacao": 0.3,
+    "descarga_movendo": 0.05,
+    "descarga_parado": 0.01,
+    "recarga": 2.0,
+    "bateria_inicial": 100.0,
+    "bateria_baixa": 30.0,
+    "bateria_critica": 15.0,
+    "bateria_recarregada": 95.0,
+    "tempo_atracar_s": 1.0,
+    "envelhecimento_s": 30.0,
+    "prazo_reuniao_s": 60.0,
+    "prazo_acoplamento_s": 3.0,
+    "espera_cessao_s": 2.0,
+    "espera_rota_alternativa_s": 20.0
+  }
+}

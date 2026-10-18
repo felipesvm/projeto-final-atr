@@ -1,0 +1,119 @@
+{
+  "descricao": "Cenário de teste: mesmo galpão, sem caixas.",
+  "galpao": {
+    "largura": 30,
+    "altura": 20
+  },
+  "obstaculos": [
+    {
+      "x": 14,
+      "y": 0,
+      "w": 2,
+      "h": 16
+    }
+  ],
+  "passagens": [
+    {
+      "nome": "P1",
+      "x": 14,
+      "y": 3,
+      "w": 2,
+      "h": 1,
+      "capacidade": 1
+    },
+    {
+      "nome": "P2",
+      "x": 14,
+      "y": 8,
+      "w": 2,
+      "h": 1,
+      "capacidade": 2
+    },
+    {
+      "nome": "P3",
+      "x": 14,
+      "y": 13,
+      "w": 2,
+      "h": 1,
+      "capacidade": 3
+    }
+  ],
+  "baias": [
+    {
+      "id": 1,
+      "x": 4.5,
+      "y": 3.5
+    },
+    {
+      "id": 2,
+      "x": 4.5,
+      "y": 8.5
+    },
+    {
+      "id": 3,
+      "x": 4.5,
+      "y": 13.5
+    }
+  ],
+  "zonas": [
+    {
+      "id": 1,
+      "x": 25.5,
+      "y": 3.5
+    },
+    {
+      "id": 2,
+      "x": 25.5,
+      "y": 8.5
+    },
+    {
+      "id": 3,
+      "x": 25.5,
+      "y": 13.5
+    }
+  ],
+  "estacoes_recarga": [
+    {
+      "x": 0.5,
+      "y": 0.5
+    },
+    {
+      "x": 0.5,
+      "y": 1.5
+    },
+    {
+      "x": 29.5,
+      "y": 0.5
+    },
+    {
+      "x": 29.5,
+      "y": 1.5
+    }
+  ],
+  "estacionamento": {
+    "x": 1,
+    "y": 16,
+    "w": 12,
+    "h": 4
+  },
+  "caixas": [],
+  "parametros": {
+    "velocidade_max": 1.0,
+    "aceleracao": 1.0,
+    "tolerancia_chegada": 0.2,
+    "afastamento_formacao": 0.3,
+    "descarga_movendo": 0.05,
+    "descarga_parado": 0.01,
+    "recarga": 2.0,
+    "bateria_inicial": 100.0,
+    "bateria_baixa": 30.0,
+    "bateria_critica": 15.0,
+    "bateria_recarregada": 95.0,
+    "tempo_atracar_s": 1.0,
+    "envelhecimento_s": 30.0,
+    "prazo_reuniao_s": 60.0,
+    "prazo_acoplamento_s": 3.0,
+    "espera_cessao_s": 2.0,
+    "espera_rota_alternativa_s": 20.0
+  }
+}

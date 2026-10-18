@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galpão ATR — operação da frota</title>
+<link rel="stylesheet" href="estilo.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%23f2c230%22/%3E%3Crect x=%223%22 y=%226%22 width=%2210%22 height=%225%22 rx=%221%22 fill=%22%231f2a33%22/%3E%3C/svg%3E">
+<script src="/vendor/mqtt/mqtt.min.js"></script>
+<script type="importmap">
+{ "imports": {
+    "three": "/vendor/three/build/three.module.js",
+    "three/addons/": "/vendor/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="cena" aria-label="Galpão em 3D"></div>
+
+<header class="topo">
+  <div class="marca">
+    <h1>Galpão ATR</h1>
+    <p id="subtitulo">Operação e simulação da frota</p>
+  </div>
+  <div class="sistema" id="sistema" data-estado="INICIANDO">
+    <span class="sistema-estado" id="sistema-estado">Conectando</span>
+    <span class="sistema-relogio" id="relogio">t = 0 s</span>
+  </div>
+  <ul class="conexoes" id="conexoes" aria-label="Processos conectados ao broker">
+    <li data-proc="broker">Broker</li>
+    <li data-proc="organizador">Organizador</li>
+    <li data-proc="gestor">Gestor</li>
+    <li data-proc="coletor">Coletor</li>
+    <li data-proc="simulador">Simulador</li>
+  </ul>
+  <div class="topo-acoes">
+    <label class="chave"><input type="checkbox" id="chave-anticolisao" checked><span>Anticolisão</span></label>
+    <label class="chave"><input type="checkbox" id="chave-rotas-adaptativas" checked><span>Rotas adaptativas</span></label>
+    <button class="parada" id="parada-geral" type="button">Parada geral</button>
+  </div>
+</header>
+
+<aside class="painel painel-frota" aria-label="Frota">
+  <div class="painel-cabeca">
+    <h2>Frota</h2>
+    <span class="contagem" id="contagem-frota">0 robôs</span>
+  </div>
+  <ol class="frota" id="lista-frota"></ol>
+  <div class="painel-pe">
+    <button type="button" class="botao" id="novo-robo">Adicionar robô</button>
+    <button type="button" class="botao fantasma" id="novo-robo-local" title="Clique no piso para escolher onde o robô aparece">Escolher local</button>
+  </div>
+</aside>
+
+<aside class="painel painel-detalhe" id="painel-detalhe" aria-label="Robô selecionado" hidden>
+  <div class="painel-cabeca">
+    <h2 id="detalhe-titulo">Robô</h2>
+    <span class="estado-rotulo" id="detalhe-estado"></span>
+    <button type="button" class="fechar" id="fechar-detalhe" aria-label="Fechar">×</button>
+  </div>
+  <dl class="grade-dados" id="detalhe-dados"></dl>
+
+  <section class="bloco">
+    <h3>Modo de operação</h3>
+    <div class="segmentado" role="group" aria-label="Modo">
+      <button type="button" data-modo="auto">Automático</button>
+      <button type="button" data-modo="manual">Manual</button>
+    </div>
+    <div class="manual" id="bloco-manual">
+      <p class="dica" id="dica-destino">Escolha um local ou clique no piso para mandar o robô até lá.</p>
+      <div class="linha">
+        <select id="destino-local" aria-label="Local de destino"></select>
+        <button type="button" class="botao" id="enviar-destino">Enviar</button>
+      </div>
+      <button type="button" class="botao fantasma largo" id="destino-no-piso">Escolher destino no piso</button>
+    </div>
+  </section>
+
+  <section class="bloco">
+    <h3>Comandos</h3>
+    <div class="botoes">
+      <button type="button" class="botao" data-cmd="parar">Parar</button>
+      <button type="button" class="botao" data-cmd="retomar">Retomar</button>
+      <button type="button" class="botao" data-cmd="reconhecer">Reconhecer falha</button>
+      <button type="button" class="botao" data-cmd="abortar">Abortar missão</button>
+    </div>
+  </section>
+
+  <section class="bloco simulacao">
+    <h3>Simulação do hardware</h3>
+    <div class="botoes">
+      <button type="button" class="botao alerta" id="sim-defeito">Gerar defeito</button>
+      <button type="button" class="botao" id="sim-comunicacao">Cortar comunicação</button>
+    </div>
+    <label class="faixa">
+      <span>Bateria</span>
+      <input type="range" min="0" max="100" step="1" id="sim-bateria">
+      <output id="sim-bateria-valor">—</output>
+    </label>
+    <button type="button" class="botao largo" id="sim-aplicar-bateria">Aplicar nível de bateria</button>
+  </section>
+</aside>
+
+<section class="gaveta" id="gaveta" aria-label="Informações da operação">
+  <nav class="abas" role="tablist">
+    <button role="tab" type="button" data-aba="cargas" aria-selected="true">Cargas <span id="n-cargas"></span></button>
+    <button role="tab" type="button" data-aba="eventos" aria-selected="false">Histórico</button>
+    <button role="tab" type="button" data-aba="alarmes" aria-selected="false">Alarmes <span id="n-alarmes"></span></button>
+    <button role="tab" type="button" data-aba="desempenho" aria-selected="false">Desempenho</button>
+    <button role="tab" type="button" data-aba="caixa" aria-selected="false">Nova caixa</button>
+    <button type="button" class="recolher" id="recolher" aria-label="Recolher painel">▾</button>
+  </nav>
+  <div class="aba" data-conteudo="cargas">
+    <div class="cargas">
+      <div><h3>A movimentar</h3><table><thead><tr><th>Caixa</th><th>Tamanho</th><th>Rota</th><th>Situação</th><th>Espera</th></tr></thead><tbody id="tabela-pendentes"></tbody></table></div>
+      <div><h3>No destino</h3><table><thead><tr><th>Caixa</th><th>Tamanho</th><th>Rota</th><th>Robôs</th><th>Tempo total</th></tr></thead><tbody id="tabela-entregues"></tbody></table></div>
+    </div>
+  </div>
+  <div class="aba" data-conteudo="eventos" hidden><ol class="registro" id="lista-eventos"></ol></div>
+  <div class="aba" data-conteudo="alarmes" hidden><ol class="registro" id="lista-alarmes"></ol></div>
+  <div class="aba" data-conteudo="desempenho" hidden>
+    <div class="indicadores" id="indicadores"></div>
+    <div class="desempenho-tabelas">
+      <div><h3>Tempo real por robô</h3><table><thead><tr><th>Robô</th><th>T_NAV ciclos</th><th>Perdas</th><th>C máx</th><th>Atraso máx</th><th>T_STATUS C máx</th><th>Desvios</th></tr></thead><tbody id="tabela-rt"></tbody></table></div>
+      <div><h3>Passagens estreitas</h3><table><thead><tr><th>Passagem</th><th>Ocupação</th><th>Travessias</th><th>Espera média</th><th>Esperando</th></tr></thead><tbody id="tabela-passagens"></tbody></table></div>
+    </div>
+  </div>
+  <div class="aba" data-conteudo="caixa" hidden>
+    <form class="nova-caixa" id="form-caixa">
+      <label>Baia <select id="caixa-baia"></select></label>
+      <label>Tamanho <select id="caixa-tamanho"><option value="1">1 robô</option><option value="2">2 robôs</option><option value="3">3 robôs</option><option value="4">4 robôs</option></select></label>
+      <label>Destino <select id="caixa-zona"></select></label>
+      <button type="submit" class="botao">Incluir caixa na baia</button>
+      <p class="dica">A caixa entra no fim da fila da baia; o organizador decide quando disponibilizá-la.</p>
+    </form>
+  </div>
+</section>
+
+<div class="camera" role="group" aria-label="Câmera">
+  <button type="button" data-camera="planta">Planta</button>
+  <button type="button" data-camera="perspectiva" aria-pressed="true">Perspectiva</button>
+  <button type="button" data-camera="seguir">Seguir robô</button>
+  <label class="chave pequena"><input type="checkbox" id="chave-rotas" checked><span>Rotas</span></label>
+  <label class="chave pequena"><input type="checkbox" id="chave-rotulos" checked><span>Rótulos</span></label>
+</div>
+
+<div class="aviso-piso" id="aviso-piso" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

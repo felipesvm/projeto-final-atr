@@ -1,0 +1,372 @@
+{
+  "descricao": "T-08 (a): uma caixa de tamanho 4 que chega à baia 2 com a frota ocupada por caixas de tamanho 1.",
+  "galpao": {
+    "largura": 30,
+    "altura": 20
+  },
+  "obstaculos": [
+    {
+      "x": 14,
+      "y": 0,
+      "w": 2,
+      "h": 16
+    }
+  ],
+  "passagens": [
+    {
+      "nome": "P1",
+      "x": 14,
+      "y": 3,
+      "w": 2,
+      "h": 1,
+      "capacidade": 1
+    },
+    {
+      "nome": "P2",
+      "x": 14,
+      "y": 8,
+      "w": 2,
+      "h": 1,
+      "capacidade": 2
+    },
+    {
+      "nome": "P3",
+      "x": 14,
+      "y": 13,
+      "w": 2,
+      "h": 1,
+      "capacidade": 3
+    }
+  ],
+  "baias": [
+    {
+      "id": 1,
+      "x": 4.5,
+      "y": 3.5
+    },
+    {
+      "id": 2,
+      "x": 4.5,
+      "y": 8.5
+    },
+    {
+      "id": 3,
+      "x": 4.5,
+      "y": 13.5
+    }
+  ],
+  "zonas": [
+    {
+      "id": 1,
+      "x": 25.5,
+      "y": 3.5
+    },
+    {
+      "id": 2,
+      "x": 25.5,
+      "y": 8.5
+    },
+    {
+      "id": 3,
+      "x": 25.5,
+      "y": 13.5
+    }
+  ],
+  "estacoes_recarga": [
+    {
+      "x": 0.5,
+      "y": 0.5
+    },
+    {
+      "x": 0.5,
+      "y": 1.5
+    },
+    {
+      "x": 29.5,
+      "y": 0.5
+    },
+    {
+      "x": 29.5,
+      "y": 1.5
+    }
+  ],
+  "estacionamento": {
+    "x": 1,
+    "y": 16,
+    "w": 12,
+    "h": 4
+  },
+  "caixas": [
+    {
+      "id": 1,
+      "tamanho": 1,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 3,
+      "tamanho": 1,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 4,
+      "tamanho": 1,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 5,
+      "tamanho": 1,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 6,
+      "tamanho": 1,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 7,
+      "tamanho": 1,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 8,
+      "tamanho": 1,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 9,
+      "tamanho": 1,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 10,
+      "tamanho": 1,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 2,
+      "tamanho": 4,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 11,
+      "tamanho": 1,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 12,
+      "tamanho": 1,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 13,
+      "tamanho": 1,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 14,
+      "tamanho": 1,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 15,
+      "tamanho": 1,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 16,
+      "tamanho": 1,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 17,
+      "tamanho": 1,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 18,
+      "tamanho": 1,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 19,
+      "tamanho": 1,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 20,
+      "tamanho": 1,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 21,
+      "tamanho": 1,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 22,
+      "tamanho": 1,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 23,
+      "tamanho": 1,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 24,
+      "tamanho": 1,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 25,
+      "tamanho": 1,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 26,
+      "tamanho": 1,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 27,
+      "tamanho": 1,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 28,
+      "tamanho": 1,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 29,
+      "tamanho": 1,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 30,
+      "tamanho": 1,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 31,
+      "tamanho": 1,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 32,
+      "tamanho": 1,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 33,
+      "tamanho": 1,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 34,
+      "tamanho": 1,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 35,
+      "tamanho": 1,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 36,
+      "tamanho": 1,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 37,
+      "tamanho": 1,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 38,
+      "tamanho": 1,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 39,
+      "tamanho": 1,
+      "baia": 1,
+      "zona": 1
+    },
+    {
+      "id": 40,
+      "tamanho": 1,
+      "baia": 2,
+      "zona": 2
+    },
+    {
+      "id": 41,
+      "tamanho": 1,
+      "baia": 3,
+      "zona": 3
+    },
+    {
+      "id": 42,
+      "tamanho": 1,
+      "baia": 1,
+      "zona": 1
+    }
+  ],
+  "parametros": {
+    "velocidade_max": 2.0,
+    "aceleracao": 2.0,
+    "tolerancia_chegada": 0.2,
+    "afastamento_formacao": 0.3,
+    "descarga_movendo": 0.05,
+    "descarga_parado": 0.01,
+    "recarga": 2.0,
+    "bateria_inicial": 100.0,
+    "bateria_baixa": 30.0,
+    "bateria_critica": 15.0,
+    "bateria_recarregada": 95.0,
+    "tempo_atracar_s": 1.0,
+    "envelhecimento_s": 30.0,
+    "prazo_reuniao_s": 60.0,
+    "prazo_acoplamento_s": 3.0,
+    "espera_cessao_s": 2.0,
+    "espera_rota_alternativa_s": 20.0
+  }
+}

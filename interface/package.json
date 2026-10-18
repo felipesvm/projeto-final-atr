@@ -1,0 +1,22 @@
+{
+  "name": "amr-interface",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Broker MQTT, simulador do galpão e tela de operação 3D do sistema de logística com AMRs",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "broker": "node broker.js",
+    "simulador": "node simulador.js"
+  },
+  "dependencies": {
+    "@fontsource/barlow": "5.1.0",
+    "@fontsource/barlow-condensed": "5.1.0",
+    "aedes": "0.51.3",
+    "mqtt": "5.10.1",
+    "three": "0.169.0",
+    "ws": "8.18.0"
+  }
+}

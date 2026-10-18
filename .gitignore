@@ -1,0 +1,12 @@
+build/
+build-tsan/
+bin/
+bin-tsan/
+logs/
+*.o
+*.d
+testes/resultados/
+build-asan/
+bin-asan/
+runtime/
+interface/node_modules/
