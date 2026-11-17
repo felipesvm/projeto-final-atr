@@ -26,7 +26,8 @@ Sistema completo (Etapas 1 e 2): um núcleo em C++17 que organiza uma frota de r
 8. [Requisitos do enunciado e onde são atendidos](#8-requisitos-do-enunciado-e-onde-são-atendidos)
 9. [Testes e análise de escalonabilidade](#9-testes-e-análise-de-escalonabilidade)
 10. [Organização do repositório](#10-organização-do-repositório)
-11. [Problemas comuns](#11-problemas-comuns)
+11. [Deixar no ar para acesso público](#11-deixar-no-ar-para-acesso-público)
+12. [Problemas comuns](#12-problemas-comuns)
 
 ---
 
