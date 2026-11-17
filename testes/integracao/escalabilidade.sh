@@ -59,6 +59,12 @@ PY
     done
 done
 
+if grep -q "sem permissão para SCHED_FIFO" "$SAIDA"/execucao_*.log; then
+    echo "escalonamento efetivo: politica normal (sem permissao para SCHED_FIFO)" >> "$SAIDA/plataforma.txt"
+else
+    echo "escalonamento efetivo: SCHED_FIFO" >> "$SAIDA/plataforma.txt"
+fi
+
 python3 testes/integracao/graficos_escalabilidade.py "$SAIDA" || echo "gráficos não gerados (instale python3-matplotlib)"
 tar czf testes/resultados/escalabilidade.tar.gz -C testes/resultados escalabilidade
 echo
