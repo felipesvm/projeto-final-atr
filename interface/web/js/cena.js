@@ -598,7 +598,7 @@ export class Cena {
         const [w, h, d] = dimensoesCaixa(c.tamanho);
         malha = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), this.materialCaixa);
         malha.castShadow = malha.receiveShadow = true;
-        malha.userData = { altura: h, alvo: null };
+        malha.userData = { altura: h, alvo: null, raio: Math.max(w, d) / 2 + 0.2 };
         this.cena.add(malha);
         this.caixas.set(c.id, malha);
       }
@@ -778,6 +778,10 @@ export class Cena {
       r.alvo.visible = mostrarAlvo;
       if (mostrarAlvo) r.alvo.position.copy(r.sp);
     }
+    // robô embaixo da caixa (chegando para acoplar ou saindo depois de soltar): a caixa fica na altura do
+    // elevador, apoiada nele, em vez de atravessá-lo no chão
+    const robos = [...this.robos.values()].filter((r) => r.pos);
+    const apoio = (c) => (robos.some((r) => Math.hypot(r.pos.x - c.position.x, r.pos.z - c.position.z) < c.userData.raio) ? 0.25 : 0);
     for (const c of this.caixas.values()) {
       const membros = (c.userData.membros ?? []).map((id) => this.robos.get(id)).filter((r) => r?.pos);
       if (membros.length) {
@@ -792,11 +796,15 @@ export class Cena {
         }
         if (c.userData.seguia) {
           // carga já no chão, entre os robôs que a soltaram: não volta para o ponto de origem
-          c.position.lerp(centro.setY(c.userData.altura / 2), k * 0.6);
+          c.position.lerp(centro.setY(apoio(c) + c.userData.altura / 2), k * 0.6);
           continue;
         }
       }
-      if (c.userData.alvo) c.position.lerp(c.userData.alvo, k * 0.6);
+      if (c.userData.alvo) {
+        const alvo = c.userData.alvo;
+        const noChao = alvo.y <= c.userData.altura / 2 + 0.01;
+        c.position.lerp(noChao ? alvo.clone().setY(alvo.y + apoio(c)) : alvo, k * 0.6);
+      }
     }
     if (this.modo === 'seguir' && this.selecionado != null) {
       const r = this.robos.get(this.selecionado);
