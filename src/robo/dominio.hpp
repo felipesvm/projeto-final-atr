@@ -150,12 +150,15 @@ public:
             const bool colega = minha_equipe >= 0 && viz.equipe == minha_equipe;
             if (colega && esperando > 5.0) continue;  // colegas presos um pelo outro: um deles segue
             const double segura = colega ? 0.42 : cfg_.distancia_segura;
-            const double bolha = colega ? 0.42 : cfg_.bolha;
+            // entre colegas chegando à carga vale só a bolha mínima, sem previsão: os pontos de acoplamento
+            // ficam a 0,6 m uns dos outros e a previsão fazia os quatro esperarem uns pelos outros
+            const double bolha = colega ? 0.38 : cfg_.bolha;
             double rx = viz.pos.x - pos.x, ry = viz.pos.y - pos.y;
             double dist = std::hypot(rx, ry);
             if (dist > cfg_.alcance) continue;
             double frente = rx * ux + ry * uy;
             bool colado = dist < bolha && frente > 0.2 * dist;
+            if (colega && !colado) continue;
             if (!colado) {
                 double wx = viz.vel.x - minha.x, wy = viz.vel.y - minha.y;
                 double w2 = wx * wx + wy * wy;
