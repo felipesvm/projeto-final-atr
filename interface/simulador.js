@@ -5,6 +5,7 @@
 
 import fs from 'node:fs';
 import http from 'node:http';
+import net from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import mqtt from 'mqtt';
@@ -229,8 +230,7 @@ const RAIZES = [
   ['/', path.join(AQUI, 'web/')],
 ];
 
-http
-  .createServer((req, res) => {
+const servidorHttp = http.createServer((req, res) => {
     const url = decodeURIComponent(new URL(req.url, 'http://x').pathname);
     if (url === '/config.json') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -254,8 +254,23 @@ http
     }
     res.writeHead(404);
     res.end();
-  })
-  .listen(PORTA_HTTP, () => log(`interface em http://localhost:${PORTA_HTTP}`));
+  });
+
+// /mqtt na mesma porta da página repassa o WebSocket ao broker: com uma porta só, a tela funciona
+// atrás de um túnel ou proxy HTTPS (deploy público)
+servidorHttp.on('upgrade', (req, socket, cabeca) => {
+  if (!req.url.startsWith('/mqtt')) return socket.destroy();
+  const broker = net.connect(PORTA_WS, '127.0.0.1', () => {
+    let pedido = `${req.method} ${req.url} HTTP/${req.httpVersion}\r\n`;
+    for (let i = 0; i < req.rawHeaders.length; i += 2) pedido += `${req.rawHeaders[i]}: ${req.rawHeaders[i + 1]}\r\n`;
+    broker.write(pedido + '\r\n');
+    if (cabeca.length) broker.write(cabeca);
+    socket.pipe(broker).pipe(socket);
+  });
+  broker.on('error', () => socket.destroy());
+  socket.on('error', () => broker.destroy());
+});
+servidorHttp.listen(PORTA_HTTP, () => log(`interface em http://localhost:${PORTA_HTTP}`));
 
 for (let i = 0; i < ROBOS_INICIAIS; i++) novoRobo();
 setTimeout(tick, PERIODO_MS);

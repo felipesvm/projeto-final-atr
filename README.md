@@ -312,13 +312,24 @@ testes/                 testes de domínio e de integração
 third_party/            nlohmann/json (MIT)
 ```
 
-## 11. Problemas comuns
+## 11. Deixar no ar para acesso público
+
+Numa VM Ubuntu 22.04/24.04 de qualquer provedor (de preferência com vCPUs dedicadas, não as instâncias com créditos de CPU como t3 ou e2):
+
+```bash
+git clone https://github.com/felipesvm/projeto-final-atr.git && cd projeto-final-atr
+LINK_PUBLICO=1 bash implantar/instalar_servidor.sh
+```
+
+O script instala as dependências, compila, libera o `SCHED_FIFO` com `setcap` e cria o serviço `amr` (sobe no boot e reinicia se cair). Com `LINK_PUBLICO=1`, cria também um link `https://….trycloudflare.com` sem abrir portas no firewall; o link muda se o serviço `amr-link` reiniciar (`sudo journalctl -u amr-link | grep trycloudflare` mostra o atual). Sem ele, libere a porta 8080 e acesse `http://<ip>:8080`. A tela usa uma porta só: o MQTT do navegador passa por `/mqtt`. As portas 1883 e 9001 são internas e não precisam ficar abertas. Não há autenticação: quem tiver o link pode comandar a frota.
+
+## 12. Problemas comuns
 
 | Sintoma | O que fazer |
 |---|---|
 | `Node.js não encontrado` ou erro de sintaxe no simulador | Instale o Node 18 ou mais novo (seção 1). `node --version` deve mostrar v18+. |
 | Porta 1883, 9001 ou 8080 em uso | Encerre o outro serviço (por exemplo `sudo systemctl stop mosquitto`) ou use `--porta-http`. |
-| Tela abre mas fica "Conectando" | O navegador precisa alcançar a porta 9001 (WebSocket do broker) na mesma máquina. |
+| Tela abre mas fica "Conectando" | A tela fala com o broker pelo caminho `/mqtt` da mesma porta da página; confira se o broker subiu (porta 9001 local). |
 | Aviso "sem permissão para SCHED_FIFO" | Normal sem privilégios; veja *Prioridades de tempo real*. |
 | Execução interrompida deixou lixo de IPC | `./bin/limpar_ipc` (o `run.sh` também limpa ao iniciar). |
 | WSL: navegador não abre sozinho | Abra http://localhost:8080 no navegador do Windows. |

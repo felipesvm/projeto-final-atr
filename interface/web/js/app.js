@@ -66,8 +66,8 @@ atualizarAreaLivre();
 
 // ---------------------------------------------------------------- MQTT
 
-const config = await fetch('/config.json').then((r) => r.json()).catch(() => ({ porta_ws: 9001 }));
-const cliente = mqtt.connect(`ws://${location.hostname}:${config.porta_ws}`, {
+// o MQTT passa pela mesma porta da página (/mqtt), o que também funciona atrás de HTTPS
+const cliente = mqtt.connect(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/mqtt`, {
   clientId: `amr_tela_${Math.random().toString(16).slice(2, 8)}`,
   reconnectPeriod: 1000,
 });
