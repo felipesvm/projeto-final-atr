@@ -101,15 +101,50 @@ export class Cena {
 
     this.camPerspectiva = new THREE.PerspectiveCamera(38, 1, 0.1, 400);
     this.camPlanta = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 200);
+    // navegação como num mapa: arrastar move pelo galpão, botão direito (ou dois dedos) gira,
+    // a roda aproxima na direção do cursor e o duplo clique voa até o ponto
     this.controles = new OrbitControls(this.camPerspectiva, this.renderer.domElement);
-    this.controles.enableDamping = true;
-    this.controles.maxPolarAngle = Math.PI * 0.47;
-    this.controles.minDistance = 4;
-    this.controles.maxDistance = 90;
+    Object.assign(this.controles, {
+      enableDamping: true,
+      dampingFactor: 0.12,
+      maxPolarAngle: Math.PI * 0.47,
+      minDistance: 1.5,
+      maxDistance: 90,
+      screenSpacePanning: false,
+      zoomToCursor: true,
+      zoomSpeed: 1.4,
+      panSpeed: 1.1,
+      rotateSpeed: 0.7,
+    });
+    this.controles.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
+    this.controles.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
     this.controlesPlanta = new OrbitControls(this.camPlanta, this.renderer.domElement);
-    this.controlesPlanta.enableRotate = false;
-    this.controlesPlanta.screenSpacePanning = true;
-    this.controlesPlanta.enabled = false;
+    Object.assign(this.controlesPlanta, {
+      enableRotate: false,
+      enableDamping: true,
+      dampingFactor: 0.15,
+      screenSpacePanning: true,
+      zoomToCursor: true,
+      zoomSpeed: 1.4,
+      minZoom: 0.7,
+      maxZoom: 12,
+      enabled: false,
+    });
+    this.controlesPlanta.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+    this.controlesPlanta.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
+    for (const c of [this.controles, this.controlesPlanta]) c.addEventListener('start', () => (this.voo = null));
+    this.distanciaSeguir = 6;
+    this.renderer.domElement.addEventListener('dblclick', (e) => this.voarPara(e));
+    this.renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
+    this.renderer.domElement.addEventListener(
+      'wheel',
+      (e) => {
+        if (this.modo !== 'seguir') return;
+        e.preventDefault();
+        this.distanciaSeguir = Math.min(20, Math.max(2, this.distanciaSeguir * (e.deltaY > 0 ? 1.12 : 0.89)));
+      },
+      { passive: false }
+    );
 
     this.raycaster = new THREE.Raycaster();
     this.ponteiro = new THREE.Vector2();
@@ -459,6 +494,10 @@ export class Cena {
 
   enquadrar() {
     const { L, A } = this;
+    this.voo = null;
+    this.controles.maxDistance = Math.max(L, A) * 2.6;
+    this.camPlanta.zoom = 1;
+    this.camPlanta.updateProjectionMatrix();
     this.camPerspectiva.position.set(-L * 0.04, Math.max(L, A) * 1.2, A * 1.12);
     this.controles.target.set(0, 0, -A * 0.02);
     this.controles.update();
@@ -688,7 +727,44 @@ export class Cena {
     }
   }
 
+  // duplo clique no piso: a câmera desliza até o ponto e aproxima
+  voarPara(e) {
+    if (this.modo === 'seguir' || !this.piso) return;
+    const ret = this.renderer.domElement.getBoundingClientRect();
+    this.ponteiro.set(((e.clientX - ret.left) / ret.width) * 2 - 1, -((e.clientY - ret.top) / ret.height) * 2 + 1);
+    this.raycaster.setFromCamera(this.ponteiro, this.camera());
+    const hit = this.raycaster.intersectObject(this.piso)[0];
+    if (!hit) return;
+    const alvo = hit.point.clone().setY(0);
+    if (this.modo === 'planta') {
+      this.voo = { alvo, zoom: Math.max(this.camPlanta.zoom * 1.8, 2.5) };
+    } else {
+      const ctrl = this.controles;
+      const offset = ctrl.object.position.clone().sub(ctrl.target);
+      offset.setLength(Math.min(offset.length(), 13));
+      this.voo = { alvo, posicao: alvo.clone().add(offset) };
+    }
+  }
+
+  // mantém o centro da vista dentro do galpão: arrastar não perde o galpão de vista
+  limitarAlvo(ctrl) {
+    if (!this.L) return;
+    const t = ctrl.target;
+    const x = Math.min(this.L / 2, Math.max(-this.L / 2, t.x));
+    const z = Math.min(this.A / 2, Math.max(-this.A / 2, t.z));
+    const dx = x - t.x;
+    const dz = z - t.z;
+    const dy = -t.y;
+    if (dx || dz || dy) {
+      t.set(x, 0, z);
+      ctrl.object.position.x += dx;
+      ctrl.object.position.y += dy;
+      ctrl.object.position.z += dz;
+    }
+  }
+
   definirCamera(modo) {
+    this.voo = null;
     this.modo = modo;
     this.controles.enabled = modo === 'perspectiva';
     this.controlesPlanta.enabled = modo === 'planta';
@@ -809,13 +885,29 @@ export class Cena {
     if (this.modo === 'seguir' && this.selecionado != null) {
       const r = this.robos.get(this.selecionado);
       if (r?.pos) {
-        const atras = new THREE.Vector3(-Math.cos(r.theta) * 5, 4, Math.sin(r.theta) * 5).add(r.pos);
+        const d = this.distanciaSeguir;
+        const atras = new THREE.Vector3(-Math.cos(r.theta) * d, d * 0.8, Math.sin(r.theta) * d).add(r.pos);
         this.camPerspectiva.position.lerp(atras, k * 0.5);
         this.controles.target.lerp(r.pos, k);
         this.camPerspectiva.lookAt(this.controles.target);
       }
-    } else if (this.modo === 'perspectiva') this.controles.update();
-    else this.controlesPlanta.update();
+    } else {
+      const ctrl = this.modo === 'perspectiva' ? this.controles : this.controlesPlanta;
+      if (this.voo) {
+        const v = this.voo;
+        const delta = v.alvo.clone().sub(ctrl.target).multiplyScalar(Math.min(1, k * 0.9));
+        ctrl.target.add(delta);
+        if (v.posicao) ctrl.object.position.lerp(v.posicao, Math.min(1, k * 0.9));
+        else {
+          ctrl.object.position.add(delta);
+          ctrl.object.zoom += (v.zoom - ctrl.object.zoom) * Math.min(1, k * 0.9);
+          ctrl.object.updateProjectionMatrix();
+        }
+        if (ctrl.target.distanceTo(v.alvo) < 0.05) this.voo = null;
+      }
+      ctrl.update();
+      this.limitarAlvo(ctrl);
+    }
     const cam = this.camera();
     this.renderer.render(this.cena, cam);
     this.rotulos.render(this.cena, cam);

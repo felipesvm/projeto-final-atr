@@ -420,6 +420,8 @@ for (const b of document.querySelectorAll('[data-camera]'))
     for (const o of document.querySelectorAll('[data-camera]')) o.setAttribute('aria-pressed', String(o === b));
     cena.definirCamera(b.dataset.camera);
   });
+$('#centralizar').addEventListener('click', () => cena.enquadrar());
+avisar('Arraste para mover, botão direito gira, roda aproxima, duplo clique vai até o ponto');
 $('#chave-rotas').addEventListener('change', (e) => cena.alternarRotas(e.target.checked));
 $('#chave-rotulos').addEventListener('change', (e) => cena.alternarRotulos(e.target.checked));
 
