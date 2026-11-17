@@ -662,6 +662,19 @@ void Organizador::ciclo_despacho() {
             eq.afastamentos.clear();
             for (int i = 0; i < eq.k; ++i) eq.afastamentos.push_back(afastamento_formacao(eq.k, melhor[size_t(i)], d));
             eq.t_criacao = agora;
+            // prazo de reunião proporcional ao caminho do membro mais distante: num galpão grande, robôs que
+            // vêm do outro lado da parede não chegam no prazo fixo, e a equipe seria desfeita à toa
+            {
+                double celulas_max = 0;
+                auto campo = campos.find(caixa->def.id);
+                for (int id : eq.membros) {
+                    const auto& f = fotos[size_t(modelo_.robos[id].slot)];
+                    int cel = campo != campos.end() ? mapa_.distancia_celulas(campo->second, f.pos) : -1;
+                    celulas_max = std::max(celulas_max, cel >= 0 ? double(cel) : distancia(f.pos, caixa->origem));
+                }
+                double viagem_s = celulas_max / std::max(0.1, cenario_.parametros.velocidade_max);
+                eq.prazo_reuniao_ns = int64_t(std::max(cenario_.parametros.prazo_reuniao_s, 30.0 + 2.5 * viagem_s) * NS_POR_S);
+            }
             caixa->estado = EstadoCaixa::DESIGNADA;
             caixa->equipe = indice;
             // quatro pontos de descarga por zona, em rodízio, para equipes seguidas não pararem umas sobre as outras
@@ -760,7 +773,7 @@ void Organizador::ciclo_supervisao() {
         for (size_t i = 0; i < modelo_.equipes.size(); ++i) {
             auto& eq = modelo_.equipes[i];
             if (!eq.ativa) continue;
-            if (eq.estado == EstadoEquipe::FORMANDO && agora - eq.t_criacao > int64_t(p.prazo_reuniao_s * NS_POR_S)) {
+            if (eq.estado == EstadoEquipe::FORMANDO && agora - eq.t_criacao > (eq.prazo_reuniao_ns > 0 ? eq.prazo_reuniao_ns : int64_t(p.prazo_reuniao_s * NS_POR_S))) {
                 abortar_equipe(int(i), "prazo de reunião excedido", ef);
             } else if (eq.estado == EstadoEquipe::REUNIDA && agora - eq.t_go > int64_t(p.prazo_acoplamento_s * NS_POR_S)) {
                 abortar_equipe(int(i), "prazo de acoplamento excedido", ef);

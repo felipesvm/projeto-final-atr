@@ -282,7 +282,13 @@ void Navegacao::publicar_rota_propria() {
 // ------------------------------------------------------------------ anticolisão (ponto extra)
 
 namespace {
-int prioridade_de(EstadoRobo e, int id) { return (e == EstadoRobo::TRANSPORTANDO ? 100000 : 0) + 10000 - id; }
+// quem carrega tem a vez; depois quem vai a um destino; robô livre indo estacionar cede a todos
+int prioridade_de(EstadoRobo e, int id) {
+    int base = e == EstadoRobo::TRANSPORTANDO                                            ? 200000
+               : e == EstadoRobo::DESLOCANDO || e == EstadoRobo::DESLOCANDO_RECARGA ? 100000
+                                                                                       : 0;
+    return base + 10000 - id;
+}
 }  // namespace
 
 void Navegacao::aplicar_anticolisao(const VisaoContexto& c, const Ponto& pos, Saidas& s) {
@@ -290,7 +296,7 @@ void Navegacao::aplicar_anticolisao(const VisaoContexto& c, const Ponto& pos, Sa
                               c.estado == EstadoRobo::DESLOCANDO_RECARGA ||
                               (c.estado == EstadoRobo::DISPONIVEL && objetivo_ == Objetivo::ESTACIONAR);
     // ponto de desvio precisa de folga: célula livre, longe de passagens e com o caminho reto desimpedido
-    auto celula_livre = [&](const Ponto& p) {
+    auto celula_livre = [&](const Ponto& p, int ignorar = -1) {
         int cx = int(std::floor(p.x)), cy = int(std::floor(p.y));
         if (r_.mapa.passagem_da_celula(cx, cy) >= 0) return false;
         for (int i = 1; i <= 4; ++i) {
@@ -298,7 +304,7 @@ void Navegacao::aplicar_anticolisao(const VisaoContexto& c, const Ponto& pos, Sa
             Ponto q{pos.x + (p.x - pos.x) * t, pos.y + (p.y - pos.y) * t};
             if (!r_.mapa.livre(int(std::floor(q.x)), int(std::floor(q.y)))) return false;
             for (const auto& v : vizinhos_)
-                if (distancia(q, v.pos) < 0.7) return false;  // o desvio não pode levar a outro robô
+                if (v.id != ignorar && distancia(q, v.pos) < 0.7) return false;  // o desvio não pode levar a outro robô
         }
         return true;
     };
@@ -358,10 +364,13 @@ void Navegacao::aplicar_anticolisao(const VisaoContexto& c, const Ponto& pos, Sa
     }
     // distâncias reduzidas entre colegas só perto da carga, onde os pontos de acoplamento são vizinhos
     const int minha_equipe = c.missao.ativa && distancia(pos, c.missao.pr) < 2.0 ? c.missao.equipe : -1;
-    const int em_formacao = c.estado == EstadoRobo::TRANSPORTANDO ? minha_equipe : -1;
+    // com a carga acoplada a equipe anda como um corpo só, em qualquer ponto do trajeto; na chegada ao
+    // próprio ponto de acoplamento os colegas já estão parados nos deles, que não ficam no caminho
+    const bool chegando_ao_ponto = objetivo_ == Objetivo::ACOPLAMENTO && c.missao.ativa && distancia(pos, destino_) < 1.6;
+    const int em_formacao = c.missao.ativa && (c.estado == EstadoRobo::TRANSPORTANDO || chegando_ao_ponto) ? c.missao.equipe : -1;
     auto d = anticolisao_.avaliar(pos, {s.sp_x, s.sp_y}, r_.p.velocidade_max, prioridade_de(c.estado, r_.cfg.id), em_formacao,
                                   minha_equipe, vizinhos_, double(agora) / NS_POR_S);
-    if ((c.estado == EstadoRobo::TRANSPORTANDO || em_passagem) && d.acao == Anticolisao::Acao::DESVIAR) {
+    if ((c.estado == EstadoRobo::TRANSPORTANDO || em_passagem || chegando_ao_ponto) && d.acao == Anticolisao::Acao::DESVIAR) {
         // com carga a equipe não sai da formação, e dentro da passagem não há para onde desviar:
         // só espera, e depois de 4 s segue (quem está na passagem tem as vagas do semáforo)
         d.acao = d.esperando_s > 4.0 ? Anticolisao::Acao::SEGUIR : Anticolisao::Acao::ESPERAR;
@@ -387,6 +396,32 @@ void Navegacao::aplicar_anticolisao(const VisaoContexto& c, const Ponto& pos, Sa
             s.sp_x = desvio_.x;
             s.sp_y = desvio_.y;
             return;
+        }
+    }
+    if (evitando && !em_passagem && c.estado != EstadoRobo::TRANSPORTANDO && d.esperando_s > 2.0) {
+        // frente a frente sem espaço para contornar: quem tem menor prioridade recua e abre caminho
+        const Vizinho* outro = nullptr;
+        for (const auto& v : vizinhos_)
+            if (v.id == d.obstaculo) outro = &v;
+        if (outro && outro->prioridade > prioridade_de(c.estado, r_.cfg.id)) {
+            double ax = pos.x - outro->pos.x, ay = pos.y - outro->pos.y, n = std::hypot(ax, ay);
+            if (n > 1e-3) {
+                ax /= n;
+                ay /= n;
+                const Ponto opcoes[] = {{pos.x + ax * 0.9, pos.y + ay * 0.9},
+                                        {pos.x + ax * 0.5 - ay * 0.8, pos.y + ay * 0.5 + ax * 0.8},
+                                        {pos.x + ax * 0.5 + ay * 0.8, pos.y + ay * 0.5 - ax * 0.8}};
+                for (const auto& p : opcoes)
+                    if (celula_livre(p, outro->id)) {  // afastar-se de quem bloqueia é sempre permitido
+                        desvio_ = p;
+                        desvio_ate_ = agora + 2 * NS_POR_S;
+                        desviando_ = true;
+                        s.sp_x = desvio_.x;
+                        s.sp_y = desvio_.y;
+                        LOG("T_NAV", "frente a frente com o robô %d: recuando para abrir caminho", outro->id);
+                        return;
+                    }
+            }
         }
     }
     if (evitando) {

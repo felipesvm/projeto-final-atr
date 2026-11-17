@@ -63,6 +63,7 @@ struct EquipeOrg {
     bool posicao_carga_conhecida = false;
     Ponto posicao_carga;
     int64_t t_criacao = 0, t_go = 0, t_aborto = 0, t_fim = 0;
+    int64_t prazo_reuniao_ns = 0;
 };
 
 // Alterações em memória compartilhada decididas sob mtx_modelo (N3) e aplicadas depois de soltá-lo,
