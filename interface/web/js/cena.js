@@ -519,6 +519,7 @@ export class Cena {
     div.addEventListener('click', () => this.aoSelecionarRobo?.(id));
     const rotulo = new CSS2DObject(div);
     rotulo.position.set(0, 0.75, 0);
+    rotulo.center.set(0.5, 1);  // a base do rótulo fica no ponto: ele nunca cobre o robô nem a carga
     grupo.add(rotulo);
 
     this.cena.add(grupo);
@@ -770,6 +771,7 @@ export class Cena {
       r.corpo.rotation.y = r.theta;
       r.elevacao += ((r.acoplar ? 0.08 : 0) - r.elevacao) * k;
       r.elevador.position.y = 0.235 + r.elevacao;
+      r.rotulo.position.y = 0.6;  // mais alto, logo abaixo, quando o robô carrega uma caixa
       if (r.estado !== 'DEFEITO') r.lidar.rotation.y += dt * 9;
       r.anel.scale.setScalar(1 + 0.06 * Math.sin(performance.now() / 180));
       const mostrarAlvo = r.id === this.selecionado && r.sp && r.sp.distanceTo(r.pos) > 0.3;
@@ -784,6 +786,8 @@ export class Cena {
         const elev = membros.reduce((acc, r) => acc + r.elevacao, 0) / membros.length;
         if (elev > 0.01) {
           c.position.copy(centro.setY(0.25 + elev + c.userData.altura / 2));
+          // o nome do robô fica acima da caixa; na altura normal ele cobria a carga
+          for (const r of membros) r.rotulo.position.y = 0.25 + elev + c.userData.altura + 0.1;
           continue;
         }
         if (c.userData.seguia) {
