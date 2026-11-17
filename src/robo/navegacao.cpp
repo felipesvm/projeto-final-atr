@@ -926,7 +926,9 @@ void Navegacao::ciclo(const InfoCiclo& info) {
                     emissor_.enviar(m);
                     mudar_estado(atual, EstadoRobo::AGUARDANDO_EQUIPE);
                 } else {
-                    mudar_estado(atual, objetivo_ == Objetivo::RECARGA ? EstadoRobo::RECARREGANDO : EstadoRobo::DISPONIVEL);
+                    const bool recarga = objetivo_ == Objetivo::RECARGA;
+                    if (mudar_estado(atual, recarga ? EstadoRobo::RECARREGANDO : EstadoRobo::DISPONIVEL) && recarga)
+                        r_.registrar(Categoria::ROBO, "em recarga");
                     objetivo_ = Objetivo::NENHUM;
                 }
                 r_.rota_visivel.definir({});

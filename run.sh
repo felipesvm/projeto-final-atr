@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Sistema de logística colaborativa com AMRs — inicia todos os processos a partir da raiz do repositório.
 #
-#   ./run.sh                         sistema completo: broker, núcleo C++, simulador e tela 3D
+#   ./run.sh                         sistema completo num galpão sorteado a cada execução (ponto extra)
 #   ./run.sh --robos 8               frota inicial de 8 robôs (mais robôs podem entrar pela tela)
-#   ./run.sh --mapa-aleatorio        mapa com obstáculos e passagens sorteados (ponto extra)
+#   ./run.sh --mapa-fixo             usa o galpão padrão de config/cenario.json
 #   ./run.sh --sem-interface         só o núcleo C++ com o driver local da Etapa 1 (sem MQTT)
 #
-# Outras opções: --n-max M, --cenario arquivo, --semente S, --porta-http P, --mosquitto, --sem-rt,
+# Outras opções: --n-max M, --cenario arquivo (implica mapa fixo), --semente S, --mapa-aleatorio, --porta-http P, --mosquitto, --sem-rt,
 #                --bin pasta, --nao-abrir. Ctrl+C encerra tudo na ordem certa.
 
 set -euo pipefail
@@ -17,7 +17,8 @@ N_MAX=32
 CENARIO=config/cenario.json
 BIN=bin
 INTERFACE=1
-MAPA_ALEATORIO=0
+MAPA=auto
+CENARIO_DADO=0
 SEMENTE=""
 PORTA_HTTP=8080
 PORTA_MQTT=1883
@@ -29,19 +30,25 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         --robos)          ROBOS="$2"; shift 2 ;;
         --n-max)          N_MAX="$2"; shift 2 ;;
-        --cenario)        CENARIO="$2"; shift 2 ;;
+        --cenario)        CENARIO="$2"; CENARIO_DADO=1; shift 2 ;;
         --bin)            BIN="$2"; shift 2 ;;
-        --mapa-aleatorio) MAPA_ALEATORIO=1; shift ;;
-        --semente)        SEMENTE="$2"; MAPA_ALEATORIO=1; shift 2 ;;
+        --mapa-aleatorio) MAPA=aleatorio; shift ;;
+        --mapa-fixo)      MAPA=fixo; shift ;;
+        --semente)        SEMENTE="$2"; MAPA=aleatorio; shift 2 ;;
         --porta-http)     PORTA_HTTP="$2"; shift 2 ;;
         --mosquitto)      MOSQUITTO=1; shift ;;
         --sem-interface|--driver-stub) INTERFACE=0; shift ;;
         --sem-rt)         export AMR_SEM_RT=1; shift ;;
         --nao-abrir)      ABRIR=0; shift ;;
-        -h|--help)        sed -n '2,11p' "$0"; exit 0 ;;
+        -h|--help)        sed -n '2,10p' "$0"; exit 0 ;;
         *) echo "opção desconhecida: $1 (veja ./run.sh --help)" >&2; exit 2 ;;
     esac
 done
+
+# sem opção de mapa: galpão sorteado no sistema completo; cenário fixo com --cenario ou no modo sem interface
+if [[ $MAPA == auto ]]; then
+    if (( CENARIO_DADO || ! INTERFACE )); then MAPA=fixo; else MAPA=aleatorio; fi
+fi
 
 if (( ROBOS > N_MAX )); then echo "--robos ($ROBOS) maior que --n-max ($N_MAX)" >&2; exit 2; fi
 
@@ -62,9 +69,10 @@ if [[ -w /proc/sys/fs/mqueue/msg_max ]] && (( $(cat /proc/sys/fs/mqueue/msg_max)
 fi
 
 mkdir -p logs runtime
-if (( MAPA_ALEATORIO )); then
+if [[ $MAPA == aleatorio ]]; then
     SEMENTE="${SEMENTE:-$(date +%s)}"
     "$BIN/gerar_mapa" --semente "$SEMENTE" --saida runtime/cenario_aleatorio.json
+    echo "galpão sorteado com a semente $SEMENTE (repita com ./run.sh --semente $SEMENTE; galpão padrão: --mapa-fixo)"
     CENARIO=runtime/cenario_aleatorio.json
 fi
 

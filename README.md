@@ -69,13 +69,14 @@ Na primeira vez o `run.sh` compila o núcleo (`make`) e instala as dependências
 | Opção | Padrão | Efeito |
 |---|---|---|
 | `--robos N` | 6 | Robôs que o simulador disponibiliza na partida. Outros podem entrar pela tela. |
-| `--mapa-aleatorio` | — | Gera um galpão novo (paredes, passagens de capacidade 1 a 4, prateleiras e caixas sorteadas). |
-| `--semente S` | — | Mapa aleatório reproduzível. |
-| `--cenario arquivo` | `config/cenario.json` | Outro cenário (os de teste estão em `config/`). |
+| (nenhuma opção de mapa) | mapa aleatório | A cada execução sorteia um galpão novo (paredes, passagens de capacidade 1 a 4, prateleiras e caixas). A semente sorteada aparece no terminal. |
+| `--semente S` | — | Repete o galpão sorteado com a semente S. |
+| `--mapa-fixo` | — | Usa o galpão padrão de `config/cenario.json`. |
+| `--cenario arquivo` | — | Usa outro cenário fixo (os de teste estão em `config/`). |
 | `--n-max M` | 32 | Capacidade da tabela da frota. Só dimensiona o IPC; não exige recompilar. |
 | `--porta-http P` | 8080 | Porta da tela. |
 | `--mosquitto` | — | Usa o Mosquitto instalado no sistema (`config/mosquitto.conf`) em vez do broker embutido. |
-| `--sem-interface` | — | Só o núcleo C++, com o driver local da Etapa 1 (sem MQTT, sem simulador). |
+| `--sem-interface` | — | Só o núcleo C++, com o driver local da Etapa 1 (sem MQTT, sem simulador); usa o galpão fixo. |
 | `--sem-rt` | — | Não pede prioridades `SCHED_FIFO`. |
 | `--nao-abrir` | — | Não abre o navegador. |
 
@@ -240,7 +241,7 @@ O simulador conta colisões (centros a menos de 35 cm, exceto robôs acoplados �
 
 ### Inteligência artificial para rotas e cargas, com mapa aleatório (até +3)
 
-- **Mapa aleatório a cada execução** (`./run.sh --mapa-aleatorio`): `bin/gerar_mapa` sorteia duas paredes com quatro passagens cada, de capacidades 1, 2, 3 e 4, prateleiras e filas de caixas. Um mapa só é aceito se todas as baias chegam a todas as zonas com equipes de 1 a 4 robôs e se o estacionamento e as estações de recarga são alcançáveis.
+- **Mapa aleatório a cada execução** (padrão do `./run.sh`; `--mapa-fixo` volta ao galpão de `config/cenario.json`): `bin/gerar_mapa` sorteia duas paredes com quatro passagens cada, de capacidades 1, 2, 3 e 4, prateleiras e filas de caixas. Um mapa só é aceito se todas as baias chegam a todas as zonas com equipes de 1 a 4 robôs e se o estacionamento e as estações de recarga são alcançáveis.
 - **Rotas por busca heurística com custo aprendido**: o A* de cada robô soma ao comprimento do caminho um custo por passagem, igual à média móvel das esperas que os próprios robôs observaram ali, mais uma penalidade se ela está cheia agora. Passagens congestionadas ficam "mais longas" e o tráfego se redistribui sozinho. Equipes só usam passagens com capacidade maior ou igual ao seu tamanho. A chave **Rotas adaptativas** liga e desliga o custo aprendido.
 - **Otimização da atribuição de cargas**: o despachante escolhe os robôs pelo caminho real até a caixa (busca em largura na grade a partir da caixa) e pela bateria, e não pela distância em linha reta; mantém a alocação tudo-ou-nada, o envelhecimento das caixas e a reserva progressiva contra inanição.
 - **Pontos de descarga em rodízio** e retorno automático ao estacionamento evitam que equipes seguidas parem umas sobre as outras.
