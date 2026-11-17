@@ -54,6 +54,16 @@ function texturaCaixa() {
   return t;
 }
 
+// O CSS2DRenderer só apaga o rótulo HTML quando o próprio rótulo sai do pai. Ao tirar o grupo inteiro
+// da cena (mapa novo, robô removido), os rótulos dos filhos ficavam soltos na tela.
+function removerComRotulos(cena, objeto) {
+  if (!objeto) return;
+  objeto.traverse((o) => {
+    if (o.isCSS2DObject && o.element?.parentNode) o.element.parentNode.removeChild(o.element);
+  });
+  cena.remove(objeto);
+}
+
 export class Cena {
   constructor(container, { aoSelecionarRobo, aoClicarPiso }) {
     this.container = container;
@@ -124,9 +134,17 @@ export class Cena {
   // ---------------------------------------------------------------- construção do galpão
 
   async construirMapa(mapa) {
+    // o mapa pode chegar duas vezes seguidas (mensagem retida e reconexão): só a última construção vale,
+    // senão as duas preenchem o mesmo grupo e as placas aparecem em dobro
+    const geracao = (this.geracaoMapa = (this.geracaoMapa ?? 0) + 1);
+    await document.fonts.load('700 40px "Barlow Condensed"').catch(() => {});
+    if (geracao !== this.geracaoMapa) return;
     if (this.grupoMapa) {
-      this.cena.remove(this.grupoMapa);
-      for (const r of this.robos.values()) this.cena.remove(r.grupo);
+      removerComRotulos(this.cena, this.grupoMapa);
+      for (const r of this.robos.values()) {
+        removerComRotulos(this.cena, r.grupo);
+        this.cena.remove(r.alvo);
+      }
       this.robos.clear();
       for (const c of this.caixas.values()) this.cena.remove(c);
       this.caixas.clear();
@@ -136,7 +154,6 @@ export class Cena {
     this.A = mapa.galpao.altura;
     this.grupoMapa = new THREE.Group();
     this.cena.add(this.grupoMapa);
-    await document.fonts.load('700 40px "Barlow Condensed"').catch(() => {});
 
     this.criarLuzes();
     this.criarPiso();
@@ -526,7 +543,7 @@ export class Cena {
     }
     for (const [id, r] of this.robos)
       if (!vistos.has(id)) {
-        this.cena.remove(r.grupo);
+        removerComRotulos(this.cena, r.grupo);
         this.cena.remove(r.alvo);
         this.robos.delete(id);
       }
