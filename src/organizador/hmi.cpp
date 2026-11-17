@@ -28,7 +28,12 @@ const char* nome_sistema(uint32_t e) {
 }
 
 json metricas(const MetricasTempoReal& m) {
-    return {{"ciclos", m.ciclos}, {"perdas", m.perdas_prazo}, {"c_max_us", m.execucao_max_us}, {"lat_max_us", m.atraso_max_us}};
+    return {{"ciclos", m.ciclos},
+            {"perdas", m.perdas_prazo},
+            {"c_max_us", m.execucao_max_us},
+            {"c_med_us", m.ciclos ? double(m.execucao_soma_us) / double(m.ciclos) : 0.0},
+            {"lat_max_us", m.atraso_max_us},
+            {"resp_max_us", m.resposta_max_us}};
 }
 
 double arred(double v, double passo = 0.01) { return std::round(v / passo) * passo; }

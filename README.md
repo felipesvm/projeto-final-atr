@@ -269,8 +269,10 @@ O simulador conta colisões (centros a menos de 35 cm, exceto robôs acoplados �
 make testes                                      # T-01: domínio (A*, despachante, anticolisão, bateria...)
 bash testes/integracao/t13_mqtt.sh               # sistema completo por MQTT: comandos da tela e da simulação
 bash testes/integracao/executar_todos.sh         # T-01 a T-13 (cerca de 1 h)
-VALORES="2 4 8 16 24 32" bash testes/integracao/escalabilidade.sh
+bash testes/integracao/escalabilidade.sh          # rampa de 2 a 64 robôs, 3 repetições (cerca de 1 h)
 ```
+
+A rampa grava em `testes/resultados/escalabilidade/` a tabela `resumo.csv` (uma linha por execução), a consolidada `consolidado.csv`, os gráficos de tempo de resposta, tempo de execução, utilização e vazão, e o pacote `testes/resultados/escalabilidade.tar.gz` com tudo isso. Os gráficos precisam do `python3-matplotlib` (`sudo apt install python3-matplotlib`). Variáveis: `VALORES`, `REPETICOES`, `DURACAO` (segundos), `CENARIO`.
 
 | ID | O que verifica |
 |---|---|

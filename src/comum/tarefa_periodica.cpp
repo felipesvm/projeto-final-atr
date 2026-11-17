@@ -57,7 +57,8 @@ void TarefaPeriodica::parar() {
 }
 
 MetricasTempoReal TarefaPeriodica::metricas() const {
-    return MetricasTempoReal{ciclos_.load(), perdas_.load(), execucao_max_us_.load(), atraso_max_us_.load()};
+    return MetricasTempoReal{ciclos_.load(), perdas_.load(), execucao_max_us_.load(), atraso_max_us_.load(), resposta_max_us_.load(),
+                             execucao_soma_us_.load()};
 }
 
 void TarefaPeriodica::executar() {
@@ -79,6 +80,8 @@ void TarefaPeriodica::executar() {
 
         int64_t fim = agora_ns();
         atualizar_maximo(execucao_max_us_, uint32_t((fim - inicio) / 1000));
+        atualizar_maximo(resposta_max_us_, uint32_t((fim - proxima) / 1000));
+        execucao_soma_us_.fetch_add(uint64_t((fim - inicio) / 1000), std::memory_order_relaxed);
         ciclos_.fetch_add(1, std::memory_order_relaxed);
 
         int64_t prazo = proxima + periodo_ns_;

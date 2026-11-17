@@ -53,6 +53,8 @@ struct MetricasTempoReal {
     uint64_t perdas_prazo;
     uint32_t execucao_max_us;
     uint32_t atraso_max_us;
+    uint32_t resposta_max_us;   // da liberação ao fim do ciclo
+    uint64_t execucao_soma_us;  // para o tempo médio de execução
 };
 
 // Um slot por robô. Escritor único (a T_STATUS do robô dono); o gestor só mexe em ocupado/pid/época.

@@ -40,6 +40,11 @@ function resumo() {
     nav_atraso_max_ms: +(max((r) => r.nav.lat_max_us) / 1000).toFixed(3),
     status_c_max_ms: +(max((r) => r.status.c_max_us) / 1000).toFixed(3),
     status_atraso_max_ms: +(max((r) => r.status.lat_max_us) / 1000).toFixed(3),
+    nav_c_med_ms: +(robos.length ? soma((r) => r.nav.c_med_us ?? 0) / robos.length / 1000 : 0).toFixed(4),
+    status_c_med_ms: +(robos.length ? soma((r) => r.status.c_med_us ?? 0) / robos.length / 1000 : 0).toFixed(4),
+    nav_resp_max_ms: +(max((r) => r.nav.resp_max_us ?? 0) / 1000).toFixed(3),
+    status_resp_max_ms: +(max((r) => r.status.resp_max_us ?? 0) / 1000).toFixed(3),
+    prontos: robos.filter((r) => r.pronto).length,
     sim_tick_max_ms: sim?.tick_max_ms ?? 0,
     estados,
   };

@@ -44,6 +44,8 @@ private:
     std::atomic<uint64_t> perdas_{0};
     std::atomic<uint32_t> execucao_max_us_{0};
     std::atomic<uint32_t> atraso_max_us_{0};
+    std::atomic<uint32_t> resposta_max_us_{0};
+    std::atomic<uint64_t> execucao_soma_us_{0};
 };
 
 // Aplica SCHED_FIFO à thread chamadora. Sem permissão, avisa uma vez e segue com a política normal.
