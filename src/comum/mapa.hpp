@@ -46,6 +46,7 @@ public:
 private:
     int indice(int cx, int cy) const { return cy * largura_ + cx; }
     bool transitavel(int cx, int cy, const OpcoesRota& opcoes) const;
+    bool aproximar_livre(int& cx, int& cy, const OpcoesRota& opcoes) const;
 
     int largura_, altura_;
     std::vector<char> bloqueio_;

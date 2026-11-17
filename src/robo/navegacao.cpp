@@ -941,15 +941,18 @@ void Navegacao::ciclo(const InfoCiclo& info) {
                 if (!e.atracada) encerrar_missao(c.estado, c.estado);
                 break;
             }
-            if (c.recarga_pendente && !segurar) {
+            if (c.recarga_pendente && !segurar && agora_ns() > nova_tentativa_apos_) {
                 iniciar_recarga(pos, c.estado);
                 break;
             }
             // robô livre e parado longe da sua vaga volta ao estacionamento, sem deixar de estar disponível
             if (objetivo_ == Objetivo::ESTACIONAR) {
-                if (seguir(pos, s, segurar, c.estado) != Andamento::EM_CURSO) {
+                const Andamento a = seguir(pos, s, segurar, c.estado);
+                if (a != Andamento::EM_CURSO) {
                     objetivo_ = Objetivo::NENHUM;
                     r_.rota_visivel.definir({});
+                    // sem rota até a vaga: fica onde está e só tenta de novo depois, sem inundar os alarmes
+                    if (a == Andamento::FALHOU) nova_tentativa_apos_ = agora_ns() + 15 * NS_POR_S;
                 }
                 break;
             }
@@ -959,7 +962,8 @@ void Navegacao::ciclo(const InfoCiclo& info) {
             if (objetivo_ != Objetivo::NENHUM || c.modo != ModoOperacao::AUTO) ocioso_desde_ = agora;
             if (ocioso_desde_ == 0) ocioso_desde_ = agora;
             const Ponto vaga = vaga_estacionamento();
-            if (!segurar && c.modo == ModoOperacao::AUTO && agora - ocioso_desde_ > 1 * NS_POR_S && distancia(pos, vaga) > 0.5) {
+            if (!segurar && c.modo == ModoOperacao::AUTO && agora - ocioso_desde_ > 1 * NS_POR_S && agora > nova_tentativa_apos_ &&
+                distancia(pos, vaga) > 0.5) {
                 objetivo_ = Objetivo::ESTACIONAR;
                 destino_ = vaga;
                 pedir_rota(pos, vaga, {}, Finalidade::PROPRIA);
@@ -1014,6 +1018,7 @@ void Navegacao::ciclo(const InfoCiclo& info) {
                 }
                 r_.rota_visivel.definir({});
             } else if (a == Andamento::FALHOU) {
+                if (objetivo_ == Objetivo::RECARGA) nova_tentativa_apos_ = agora_ns() + 15 * NS_POR_S;
                 if (objetivo_ == Objetivo::ACOPLAMENTO)
                     abortar_equipe(r_.frota->equipe(uint32_t(c.missao.equipe)), c.missao.epoca);
                 encerrar_missao(atual, EstadoRobo::DISPONIVEL);

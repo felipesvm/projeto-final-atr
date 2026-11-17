@@ -79,10 +79,24 @@ int Mapa::distancia_celulas(const std::vector<int>& campo, const Ponto& p) const
     return campo[size_t(indice(cx, cy))];
 }
 
+// robô encostado numa prateleira pode estar numa célula ocupada: parte da célula livre mais próxima
+bool Mapa::aproximar_livre(int& cx, int& cy, const OpcoesRota& op) const {
+    if (transitavel(cx, cy, op)) return true;
+    for (int r = 1; r <= 2; ++r)
+        for (int ddy = -r; ddy <= r; ++ddy)
+            for (int ddx = -r; ddx <= r; ++ddx) {
+                if (std::max(std::abs(ddx), std::abs(ddy)) != r || !transitavel(cx + ddx, cy + ddy, op)) continue;
+                cx += ddx;
+                cy += ddy;
+                return true;
+            }
+    return false;
+}
+
 std::optional<Rota> Mapa::planejar(const Ponto& origem, const Ponto& destino, const OpcoesRota& op) const {
     int ox = int(std::floor(origem.x)), oy = int(std::floor(origem.y));
     int dx = int(std::floor(destino.x)), dy = int(std::floor(destino.y));
-    if (!livre(ox, oy) || !livre(dx, dy)) return std::nullopt;
+    if (!livre(ox, oy) && !aproximar_livre(ox, oy, op)) return std::nullopt;
     if (!transitavel(dx, dy, op)) return std::nullopt;
 
     // custos em décimos de célula para aceitar o custo adaptativo das passagens sem perder precisão

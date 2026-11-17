@@ -80,6 +80,7 @@ private:
 
     Saidas saida_;
     int64_t ocioso_desde_ = 0;
+    int64_t nova_tentativa_apos_ = 0;  // vaga ou estação sem rota: espera antes de pedir outra
     Ponto vaga_estacionamento() const;
     bool congelado_prazo_ = false;
     bool reconhecimento_pendente_ = false;  // operador reconheceu antes de o defeito sumir do hardware
