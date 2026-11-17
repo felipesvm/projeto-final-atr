@@ -57,7 +57,8 @@ UNIT
 fi
 
 sudo systemctl daemon-reload
-sudo systemctl enable --now amr.service
+sudo systemctl enable amr.service
+sudo systemctl restart amr.service   # roda de novo com os executáveis recém-compilados
 [[ "${LINK_PUBLICO:-0}" == 1 ]] && sudo systemctl enable --now amr-link.service
 sleep 15
 echo
