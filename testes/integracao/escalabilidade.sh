@@ -33,4 +33,4 @@ done
     echo "plataforma: $(uname -srm); $(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2- | sed 's/^ //') ($(nproc) núcleos)"
     echo "escalonamento: ${AMR_SEM_RT:+política normal}${AMR_SEM_RT:-SCHED_FIFO solicitado}"
 } > "$SAIDA/plataforma.txt"
-column -s';' -t "$SAIDA/resumo.csv"
+column -s';' -t "$SAIDA/resumo.csv" 2>/dev/null || cat "$SAIDA/resumo.csv"
