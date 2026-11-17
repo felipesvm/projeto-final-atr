@@ -17,7 +17,7 @@ fi
 
 make -s
 (cd interface && npm install --no-audit --no-fund --silent)
-sudo setcap cap_sys_nice+ep bin/amr_robo bin/amr_organizador
+for b in bin/amr_robo bin/amr_organizador; do sudo setcap cap_sys_nice+ep "$b"; done
 
 sudo tee /etc/systemd/system/amr.service > /dev/null <<UNIT
 [Unit]

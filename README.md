@@ -88,7 +88,8 @@ Para compilar separadamente: `make` (núcleo em `bin/`), `make testes` (testes d
 As threads críticas usam `SCHED_FIFO` (navegação 80, status 75, E/S 70…). Sem permissão, o sistema avisa uma vez no terminal e roda com a política normal — funciona do mesmo jeito, só sem a garantia de prioridade. Para usar as prioridades sem rodar como root:
 
 ```bash
-sudo setcap cap_sys_nice+ep bin/amr_robo bin/amr_organizador
+sudo setcap cap_sys_nice+ep bin/amr_robo
+sudo setcap cap_sys_nice+ep bin/amr_organizador
 ```
 
 (repita depois de cada `make`, porque a compilação recria os executáveis).
