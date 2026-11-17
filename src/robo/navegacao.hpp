@@ -82,6 +82,7 @@ private:
     int64_t ocioso_desde_ = 0;
     Ponto vaga_estacionamento() const;
     bool congelado_prazo_ = false;
+    bool reconhecimento_pendente_ = false;  // operador reconheceu antes de o defeito sumir do hardware
     bool segurando_ = false;
 
     bool atracado_marcado_ = false;

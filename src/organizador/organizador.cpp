@@ -272,6 +272,7 @@ void Organizador::abortar_equipe(int indice, const char* motivo, Efeitos& ef) {
         if (c.estado == EstadoCaixa::EM_TRANSPORTE) {
             c.estado = EstadoCaixa::INTERROMPIDA;
             c.interrupcoes++;
+            eq.carga_erguida = true;
         } else if (c.estado == EstadoCaixa::DESIGNADA) {
             c.estado = c.interrupcoes > 0 ? EstadoCaixa::INTERROMPIDA : EstadoCaixa::NO_PR;
         }
@@ -458,7 +459,7 @@ void Organizador::tratar(const Mensagem& m, Efeitos& ef) {
             if (!eq.ativa || eq.estado != EstadoEquipe::ABORTANDO) break;
             eq.abortos_concluidos.insert(ev.robo);
             auto pos = std::find(eq.membros.begin(), eq.membros.end(), ev.robo);
-            if (pos != eq.membros.end() && !eq.posicao_carga_conhecida) {
+            if (pos != eq.membros.end() && eq.carga_erguida && !eq.posicao_carga_conhecida) {
                 const Ponto& off = eq.afastamentos[size_t(pos - eq.membros.begin())];
                 eq.posicao_carga = {ev.x - off.x, ev.y - off.y};
                 eq.posicao_carga_conhecida = true;
@@ -785,6 +786,20 @@ void Organizador::ciclo_supervisao() {
                     if (precisa && !eq.abortos_concluidos.count(id)) todos = false;
                 }
                 if (todos || agora - eq.t_aborto > PRAZO_ABORTO_NS) {
+                    // nenhum membro informou onde soltou a carga (defeito, queda): usa a última posição conhecida
+                    if (eq.carga_erguida && !eq.posicao_carga_conhecida) {
+                        for (size_t m = 0; m < eq.membros.size(); ++m) {
+                            auto it = modelo_.robos.find(eq.membros[m]);
+                            if (it == modelo_.robos.end() || it->second.slot < 0 || m >= eq.afastamentos.size()) continue;
+                            const auto& f = fotos[size_t(it->second.slot)];
+                            eq.posicao_carga = {f.pos.x - eq.afastamentos[m].x, f.pos.y - eq.afastamentos[m].y};
+                            eq.posicao_carga_conhecida = true;
+                            break;
+                        }
+                        for (auto& c : modelo_.caixas)
+                            if (eq.posicao_carga_conhecida && c.def.id == eq.caixa && c.estado == EstadoCaixa::INTERROMPIDA)
+                                c.origem = eq.posicao_carga;
+                    }
                     for (auto& c : modelo_.caixas)
                         if (c.def.id == eq.caixa && c.estado == EstadoCaixa::INTERROMPIDA) {
                             LOG("T_ORG_SUP", "caixa %d interrompida em (%.1f, %.1f): volta ao despacho", c.def.id, c.origem.x, c.origem.y);

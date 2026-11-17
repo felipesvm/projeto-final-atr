@@ -60,6 +60,7 @@ struct EquipeOrg {
     uint32_t chegadas = 0;
     uint32_t atracados = 0;
     std::set<int> abortos_concluidos;
+    bool carga_erguida = false;  // a caixa estava no ar quando a equipe abortou: o local dela muda
     bool posicao_carga_conhecida = false;
     Ponto posicao_carga;
     int64_t t_criacao = 0, t_go = 0, t_aborto = 0, t_fim = 0;

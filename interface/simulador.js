@@ -109,7 +109,9 @@ cliente.on('message', (topico, dados) => {
   }
   const m = topico.match(/^amr\/hw\/(\d+)\/atuadores$/);
   if (m) {
-    robos.get(Number(m[1]))?.aplicarAtuadores(msg);
+    const r = robos.get(Number(m[1]));
+    // comunicação cortada vale nos dois sentidos: o robô deixa de receber setpoints e para
+    if (r?.comunicacao) r.aplicarAtuadores(msg);
     return;
   }
   if (topico === 'amr/sim/cmd') comando(msg);

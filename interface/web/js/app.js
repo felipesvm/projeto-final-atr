@@ -243,7 +243,8 @@ function desenharDetalhe() {
     : r.estado === 'DEFEITO'
       ? 'Robô com defeito: remova o defeito para enviar um destino.'
       : 'Escolha um local ou clique no piso para mandar o robô até lá.';
-  $('#sim-defeito').textContent = f.falha ? 'Remover defeito' : 'Gerar defeito';
+  // defeito já fora do hardware mas robô ainda parado: falta só o reconhecimento do operador
+  $('#sim-defeito').textContent = f.falha ? 'Remover defeito' : r.estado === 'DEFEITO' ? 'Reconhecer falha' : 'Gerar defeito';
   $('#sim-comunicacao').textContent = f.comunicacao === false ? 'Restaurar comunicação' : 'Cortar comunicação';
   const faixa = $('#sim-bateria');
   if (document.activeElement !== faixa && !faixa.dataset.mexido) {
@@ -372,7 +373,13 @@ $('#destino-no-piso').addEventListener('click', () =>
 );
 $('#sim-defeito').addEventListener('click', () => {
   const id = estado.selecionado;
-  const f = robosCombinados().find((x) => x.id === id)?.fisico;
+  const r = robosCombinados().find((x) => x.id === id);
+  const f = r?.fisico;
+  if (!f?.falha && r?.estado === 'DEFEITO') {
+    operador('reconhecer', { robo: id });
+    avisar(`Falha reconhecida: R${id} volta a operar`);
+    return;
+  }
   const gerar = !f?.falha;
   simulacao('defeito', { robo: id, ativo: gerar });
   if (gerar) {

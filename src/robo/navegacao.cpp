@@ -107,13 +107,18 @@ void Navegacao::processar_comandos(const VisaoContexto& c, const Ponto& pos) {
                 bool falha = r_.imagem.ler_entradas().falha;
                 {
                     std::lock_guard<std::mutex> t(r_.mtx_nav);
+                    const bool em_defeito = r_.ctx.estado == EstadoRobo::DEFEITO ||
+                                            (r_.ctx.sem_comunicacao && r_.ctx.estado_salvo == EstadoRobo::DEFEITO);
                     if (r_.ctx.estado == EstadoRobo::DEFEITO && !falha) {
                         r_.ctx.inibido = false;
                         r_.ctx.estado = EstadoRobo::DISPONIVEL;
                         liberado = true;
+                    } else if (em_defeito) {
+                        reconhecimento_pendente_ = true;
                     }
                 }
-                LOG("T_NAV", liberado ? "falha reconhecida, robô liberado" : "reconhecimento ignorado: defeito ainda presente");
+                LOG("T_NAV", liberado ? "falha reconhecida, robô liberado"
+                                      : "reconhecimento guardado: o robô é liberado quando o defeito sumir");
                 break;
             }
             case TipoMsg::ABORTAR:
@@ -900,6 +905,17 @@ void Navegacao::ciclo(const InfoCiclo& info) {
     const Ponto pos{e.x, e.y};
 
     processar_comandos(ler_contexto(), pos);
+    if (reconhecimento_pendente_ && !e.falha) {
+        std::lock_guard<std::mutex> t(r_.mtx_nav);
+        if (r_.ctx.estado == EstadoRobo::DEFEITO) {
+            r_.ctx.inibido = false;
+            r_.ctx.estado = EstadoRobo::DISPONIVEL;
+            reconhecimento_pendente_ = false;
+            LOG("T_NAV", "defeito removido após o reconhecimento: robô liberado");
+        } else if (!r_.ctx.sem_comunicacao) {
+            reconhecimento_pendente_ = false;
+        }
+    }
     const VisaoContexto c = ler_contexto();
     if (c.encerrar) return;
     avaliar_prazo(info);
