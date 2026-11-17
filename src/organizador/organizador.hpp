@@ -11,6 +11,7 @@
 #include "../comum/ipc.hpp"
 #include "../comum/mqtt.hpp"
 #include <deque>
+#include <map>
 #include <string>
 #include "../comum/tarefa_periodica.hpp"
 #include "../comum/mapa.hpp"
@@ -93,6 +94,7 @@ private:
     std::unique_ptr<ClienteMqtt> mqtt_;
     std::mutex mtx_alarmes_;
     std::deque<std::pair<int64_t, std::string>> alarmes_;
+    std::map<std::pair<int, int>, int64_t> ultimo_alarme_rota_;  // (tipo, robô) -> instante; só T_ORG_EVT usa
     bool anunciado_online_ = false;
     int64_t ultimo_resumo_ = 0;
     int ultima_reserva_ = -1;

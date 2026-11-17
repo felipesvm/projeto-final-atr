@@ -474,9 +474,15 @@ void Organizador::tratar(const Mensagem& m, Efeitos& ef) {
             break;
         case TipoMsg::ROTA_TIMEOUT:
         case TipoMsg::SEM_ROTA:
-        case TipoMsg::DEADLINE_NAV:
-            alarme("T_ORG_EVT", "%s do robô %d", nome_tipo(m.cab.tipo), ev.robo);
+        case TipoMsg::DEADLINE_NAV: {
+            // o mesmo alarme do mesmo robô em menos de 10 s não se repete na tela
+            int64_t& ultimo = ultimo_alarme_rota_[{int(m.cab.tipo), ev.robo}];
+            if (ultimo == 0 || agora - ultimo > 10 * NS_POR_S) {
+                ultimo = agora;
+                alarme("T_ORG_EVT", "%s do robô %d", nome_tipo(m.cab.tipo), ev.robo);
+            }
             break;
+        }
         case TipoMsg::OPERADOR:
             tratar_operador(m.operador, ef);
             break;
