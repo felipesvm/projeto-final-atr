@@ -73,7 +73,7 @@ Na primeira vez o `run.sh` compila o núcleo (`make`) e instala as dependências
 | `--semente S` | — | Repete o galpão sorteado com a semente S. |
 | `--mapa-fixo` | — | Usa o galpão padrão de `config/cenario.json`. |
 | `--cenario arquivo` | — | Usa outro cenário fixo (os de teste estão em `config/`). |
-| `--n-max M` | 32 | Capacidade da tabela da frota. Só dimensiona o IPC; não exige recompilar. |
+| `--n-max M` | 64 | Capacidade da tabela da frota. Só dimensiona o IPC; não exige recompilar. |
 | `--porta-http P` | 8080 | Porta da tela. |
 | `--mosquitto` | — | Usa o Mosquitto instalado no sistema (`config/mosquitto.conf`) em vez do broker embutido. |
 | `--sem-interface` | — | Só o núcleo C++, com o driver local da Etapa 1 (sem MQTT, sem simulador); usa o galpão fixo. |

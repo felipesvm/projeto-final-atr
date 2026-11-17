@@ -13,7 +13,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 ROBOS=6
-N_MAX=32
+N_MAX=64
 CENARIO=config/cenario.json
 BIN=bin
 INTERFACE=1

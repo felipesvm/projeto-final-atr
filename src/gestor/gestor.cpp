@@ -166,6 +166,10 @@ void Gestor::criar_robo(const Pedido& p) {
     int slot = reservar_slot(p.id, epoca);
     if (slot < 0) {
         LOG("T_GES_SPAWN", "frota cheia (N_max=%u): robô %d recusado", frota_->n_max(), p.id);
+        // avisa o simulador, que retira o robô do galpão em vez de deixá-lo inicializando para sempre
+        if (mqtt_)
+            mqtt_->publicar(topicos::ROBO_RECUSADO,
+                            nlohmann::json{{"hw_id", p.id}, {"motivo", "frota cheia: N_max = " + std::to_string(frota_->n_max())}}.dump(), 1);
         std::lock_guard<std::mutex> t(mtx_fila_);
         ids_.erase(p.id);
         return;

@@ -77,6 +77,9 @@ void Navegacao::processar_comandos(const VisaoContexto& c, const Ponto& pos) {
                     if (estado == EstadoRobo::DISPONIVEL) mudar_estado(estado, EstadoRobo::DESLOCANDO);
                 } else {
                     LOG("T_NAV", "destino manual recusado no estado %s", nome_estado(estado));
+                    char txt[80];
+                    std::snprintf(txt, sizeof txt, "destino manual recusado: robô em %s", nome_estado(estado));
+                    r_.registrar(Categoria::ROBO, txt);
                 }
                 break;
             case TipoMsg::MISSAO_EQUIPE: {
@@ -310,7 +313,9 @@ void Navegacao::aplicar_anticolisao(const VisaoContexto& c, const Ponto& pos, Sa
     };
     // dentro das passagens quem regula é o semáforo; contornar ali levaria o robô para a parede
     const bool em_passagem = r_.mapa.passagem_da_celula(int(std::floor(pos.x)), int(std::floor(pos.y))) >= 0;
-    if (!em_movimento || r_.frota->cabecalho().anticolisao.load() == 0) {
+    // quem espera vaga na entrada da passagem não anda, mas abre caminho para quem sai dela
+    const bool esperando_vaga = c.estado == EstadoRobo::AGUARDANDO_PASSAGEM;
+    if ((!em_movimento && !esperando_vaga) || r_.frota->cabecalho().anticolisao.load() == 0) {
         anticolisao_.reiniciar();
         desviando_ = false;
         r_.evitando = false;
@@ -362,14 +367,39 @@ void Navegacao::aplicar_anticolisao(const VisaoContexto& c, const Ponto& pos, Sa
         v.prioridade = prioridade_de(est, v.id);
         vizinhos_.push_back(v);
     }
+    if (esperando_vaga) {
+        for (const auto& v : vizinhos_) {
+            if (distancia(pos, v.pos) > 1.0) continue;
+            if (r_.mapa.passagem_da_celula(int(std::floor(v.pos.x)), int(std::floor(v.pos.y))) < 0) continue;
+            double ax = pos.x - v.pos.x, ay = pos.y - v.pos.y, n = std::hypot(ax, ay);
+            if (n < 1e-3) continue;
+            ax /= n;
+            ay /= n;
+            const Ponto opcoes[] = {{pos.x + ay * 0.9, pos.y - ax * 0.9}, {pos.x - ay * 0.9, pos.y + ax * 0.9}, {pos.x + ax * 0.9, pos.y + ay * 0.9}};
+            for (const auto& p : opcoes)
+                if (celula_livre(p, v.id)) {
+                    desvio_ = p;
+                    desvio_ate_ = agora + 2500 * NS_POR_MS;
+                    desviando_ = true;
+                    s.sp_x = p.x;
+                    s.sp_y = p.y;
+                    if (!r_.evitando.load()) r_.desvios++;
+                    r_.evitando = true;
+                    LOG("T_NAV", "robô %d saindo da passagem: abrindo a entrada", v.id);
+                    return;
+                }
+        }
+        r_.evitando = false;
+        return;
+    }
     // distâncias reduzidas entre colegas só perto da carga, onde os pontos de acoplamento são vizinhos
     const int minha_equipe = c.missao.ativa && distancia(pos, c.missao.pr) < 2.0 ? c.missao.equipe : -1;
     // com a carga acoplada a equipe anda como um corpo só, em qualquer ponto do trajeto; na chegada ao
-    // próprio ponto de acoplamento os colegas já estão parados nos deles, que não ficam no caminho
+    // próprio ponto de acoplamento vale a distância reduzida entre colegas e o robô só espera, sem desviar
     const bool chegando_ao_ponto = objetivo_ == Objetivo::ACOPLAMENTO && c.missao.ativa && distancia(pos, destino_) < 1.6;
-    const int em_formacao = c.missao.ativa && (c.estado == EstadoRobo::TRANSPORTANDO || chegando_ao_ponto) ? c.missao.equipe : -1;
+    const int em_formacao = c.missao.ativa && c.estado == EstadoRobo::TRANSPORTANDO ? c.missao.equipe : -1;
     auto d = anticolisao_.avaliar(pos, {s.sp_x, s.sp_y}, r_.p.velocidade_max, prioridade_de(c.estado, r_.cfg.id), em_formacao,
-                                  minha_equipe, vizinhos_, double(agora) / NS_POR_S);
+                                  chegando_ao_ponto ? c.missao.equipe : minha_equipe, vizinhos_, double(agora) / NS_POR_S);
     if ((c.estado == EstadoRobo::TRANSPORTANDO || em_passagem || chegando_ao_ponto) && d.acao == Anticolisao::Acao::DESVIAR) {
         // com carga a equipe não sai da formação, e dentro da passagem não há para onde desviar:
         // só espera, e depois de 4 s segue (quem está na passagem tem as vagas do semáforo)

@@ -592,11 +592,18 @@ export class Cena {
         filaPorBaia.set(c.baia, n + 1);
         if (b && n < 6) alvo = this.mundo(b.x - 2.3 + (n % 2) * 1.1, b.y - 0.55 + Math.floor(n / 2) * 0.55 - 0.2, h / 2);
         malha.visible = !!alvo;
-      } else if (c.estado === 'EM_TRANSPORTE' || (c.estado === 'DESIGNADA' && c.equipe >= 0 && ['ACOPLANDO', 'TRANSPORTE', 'DESACOPLANDO'].includes(equipes.get(c.equipe)?.estado))) {
+      } else if (c.estado === 'EM_TRANSPORTE' || (c.estado === 'DESIGNADA' && c.equipe >= 0 && ['ACOPLANDO', 'TRANSPORTE', 'DESACOPLANDO', 'ABORTANDO', 'CONCLUIDA'].includes(equipes.get(c.equipe)?.estado))) {
         const eq = equipes.get(c.equipe);
         malha.userData.membros = eq?.membros ?? [];
         malha.visible = true;
+        // guarda de onde a carga saiu: até o organizador publicar o novo local, ela fica onde a equipe a deixou
+        if (!malha.userData.seguia) malha.userData.origemFixa = `${c.x},${c.y}`;
+        malha.userData.seguia = true;
+      } else if (malha.userData.seguia && c.estado !== 'ENTREGUE' && `${c.x},${c.y}` === malha.userData.origemFixa) {
+        alvo = malha.position.clone().setY(h / 2);
+        malha.visible = true;
       } else if (c.estado === 'ENTREGUE') {
+        malha.userData.seguia = false;
         // empilha no ponto onde a equipe descarregou
         const chave = `${c.x},${c.y}`;
         const n = entreguesPorZona.get(chave) ?? 0;
@@ -604,6 +611,7 @@ export class Cena {
         alvo = this.mundo(c.x, c.y, h / 2 + n * 0.44);
         malha.visible = n < 4;
       } else {
+        malha.userData.seguia = false;
         alvo = this.mundo(c.x, c.y, h / 2);
         malha.visible = true;
       }
@@ -759,6 +767,11 @@ export class Cena {
         const elev = membros.reduce((acc, r) => acc + r.elevacao, 0) / membros.length;
         if (elev > 0.01) {
           c.position.copy(centro.setY(0.25 + elev + c.userData.altura / 2));
+          continue;
+        }
+        if (c.userData.seguia) {
+          // carga já no chão, entre os robôs que a soltaram: não volta para o ponto de origem
+          c.position.lerp(centro.setY(c.userData.altura / 2), k * 0.6);
           continue;
         }
       }

@@ -11,6 +11,7 @@ inline std::string rota(int robo) { return "amr/robo/" + std::to_string(robo) + 
 inline std::string status_processo(const std::string& nome) { return "amr/status/" + nome; }
 
 inline const std::string ROBO_NOVO = "amr/sim/robo_novo";
+inline const std::string ROBO_RECUSADO = "amr/sim/robo_recusado";
 inline const std::string CAIXA_NOVA = "amr/sim/caixa_nova";
 inline const std::string COMANDOS = "amr/cmd/#";
 inline const std::string ESTADO = "amr/sup/estado";

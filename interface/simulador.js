@@ -79,7 +79,7 @@ cliente.on('connect', () => {
   log(`conectado ao broker ${BROKER}`);
   cliente.publish('amr/status/simulador', 'online', { qos: 1, retain: true });
   cliente.publish('amr/sim/mapa', JSON.stringify(cenario), { qos: 1, retain: true });
-  cliente.subscribe(['amr/hw/+/atuadores', 'amr/sim/cmd', 'amr/status/gestor'], { qos: 1 });
+  cliente.subscribe(['amr/hw/+/atuadores', 'amr/sim/cmd', 'amr/status/gestor', 'amr/sim/robo_recusado'], { qos: 1 });
   cliente.subscribe('amr/sup/estado', { qos: 0 });
 });
 
@@ -112,6 +112,12 @@ cliente.on('message', (topico, dados) => {
     return;
   }
   if (topico === 'amr/sim/cmd') comando(msg);
+  if (topico === 'amr/sim/robo_recusado') {
+    // o gestor não tinha slot livre: o robô sai do galpão e a tela recebe o motivo
+    robos.delete(Number(msg.hw_id));
+    log(`robô ${msg.hw_id} recusado pelo gestor (${msg.motivo}) e retirado do galpão`);
+    cliente.publish('amr/sim/aviso', JSON.stringify({ texto: `Robô R${msg.hw_id} não entrou: ${msg.motivo}` }), { qos: 1 });
+  }
 });
 
 function anunciar(id, x, y) {

@@ -74,7 +74,7 @@ const cliente = mqtt.connect(`ws://${location.hostname}:${config.porta_ws}`, {
 
 cliente.on('connect', () => {
   estado.online.add('broker');
-  cliente.subscribe(['amr/sim/mapa', 'amr/sim/estado', 'amr/sup/estado', 'amr/sup/alarme', 'amr/log/evento', 'amr/log/historico', 'amr/robo/+/rota', 'amr/status/+'], { qos: 1 });
+  cliente.subscribe(['amr/sim/mapa', 'amr/sim/estado', 'amr/sup/estado', 'amr/sup/alarme', 'amr/log/evento', 'amr/log/historico', 'amr/robo/+/rota', 'amr/status/+', 'amr/sim/aviso'], { qos: 1 });
   cliente.publish('amr/log/pedido', '{}', { qos: 1 });
   desenharConexoes();
 });
@@ -116,6 +116,9 @@ cliente.on('message', (topico, dados) => {
       estado.alarmes.unshift(msg);
       estado.alarmes.length = Math.min(estado.alarmes.length, 200);
       desenharAlarmes();
+      avisar(msg.texto);
+      break;
+    case 'amr/sim/aviso':
       avisar(msg.texto);
       break;
     case 'amr/log/evento':
@@ -232,6 +235,14 @@ function desenharDetalhe() {
   $('#detalhe-dados').innerHTML = dados.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
   for (const b of document.querySelectorAll('[data-modo]')) b.setAttribute('aria-pressed', String((r.modo === 'MANUAL') === (b.dataset.modo === 'manual')));
   $('#bloco-manual').hidden = r.modo !== 'MANUAL';
+  // sem comunicação ou com defeito o robô não se move: destino manual fica bloqueado até ele voltar
+  const imovel = r.estado === 'SEM_COMUNICACAO' || r.estado === 'DEFEITO';
+  for (const id of ['#destino-local', '#enviar-destino', '#destino-no-piso']) $(id).disabled = imovel;
+  $('#dica-destino').textContent = r.estado === 'SEM_COMUNICACAO'
+    ? 'Sem comunicação com o robô: restaure a comunicação para enviar um destino.'
+    : r.estado === 'DEFEITO'
+      ? 'Robô com defeito: remova o defeito para enviar um destino.'
+      : 'Escolha um local ou clique no piso para mandar o robô até lá.';
   $('#sim-defeito').textContent = f.falha ? 'Remover defeito' : 'Gerar defeito';
   $('#sim-comunicacao').textContent = f.comunicacao === false ? 'Restaurar comunicação' : 'Cortar comunicação';
   const faixa = $('#sim-bateria');
@@ -360,8 +371,17 @@ $('#destino-no-piso').addEventListener('click', () =>
   })
 );
 $('#sim-defeito').addEventListener('click', () => {
-  const f = robosCombinados().find((x) => x.id === estado.selecionado)?.fisico;
-  simulacao('defeito', { robo: estado.selecionado, ativo: !f?.falha });
+  const id = estado.selecionado;
+  const f = robosCombinados().find((x) => x.id === id)?.fisico;
+  const gerar = !f?.falha;
+  simulacao('defeito', { robo: id, ativo: gerar });
+  if (gerar) {
+    avisar(`Defeito gerado no robô R${id}`);
+  } else {
+    // o defeito some do hardware; o operador reconhece a falha para o robô voltar a operar
+    setTimeout(() => operador('reconhecer', { robo: id }), 600);
+    avisar(`Defeito removido e falha reconhecida: R${id} volta a operar`);
+  }
 });
 $('#sim-comunicacao').addEventListener('click', () => {
   const f = robosCombinados().find((x) => x.id === estado.selecionado)?.fisico;
