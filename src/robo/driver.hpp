@@ -9,7 +9,7 @@
 
 namespace amr {
 
-// Fronteira com o hardware. Na Etapa 2 entra um DriverMQTT com a mesma interface.
+// Fronteira com o hardware. DriverStub é a cinemática local (--sem-interface); DriverMQTT, em driver_mqtt.hpp, fala com o simulador.
 class DriverES {
 public:
     virtual ~DriverES() = default;
